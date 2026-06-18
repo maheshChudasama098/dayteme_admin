@@ -1,0 +1,35 @@
+// import {setAuthToken} from "../services/jwtAuth";
+import {AuthRoutes} from "../routes/routes";
+
+export const isAuthenticated = () => {
+	// const token = localStorage.getItem("access_token");
+	// return !!token;
+	return true
+};
+
+export const getCurrentUser = () => {
+	const user = localStorage.getItem("user");
+	return user ? JSON.parse(user) : null;
+};
+
+export const getCurrentToken = () => localStorage.getItem("access_token");
+
+export const initializeAuth = () => {
+	const token = localStorage.getItem("access_token");
+	if (token) {
+		// setAuthToken(token);
+		return true;
+	}
+	return false;
+};
+
+export const clearAuth = () => {
+	// setAuthToken(null);
+	// localStorage.removeItem("access_token");
+	// localStorage.removeItem("refresh_token");
+};
+
+export const logout = () => {
+	clearAuth();
+	window.location.href = AuthRoutes.Login;
+};

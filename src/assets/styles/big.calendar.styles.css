@@ -1,0 +1,190 @@
+.custom-big-calendar .rbc-month-view .rbc-header {
+  padding: 12px 0;
+  background-color: var(--palette-background-default) !important;
+  border: none !important;
+  font-weight: 700;
+  font-size: 12px;
+  text-align: center;
+}
+
+
+.custom-big-calendar .rbc-month-view .rbc-header:nth-child(6),
+.rbc-month-view .rbc-header:nth-child(7) {
+  background-color: #FFE0E0 !important;
+  color: #D32F2F;
+}
+
+
+.custom-big-calendar .rbc-month-view .rbc-month-row {
+  background-color: var(--palette-background-default) !important;
+  border: none !important;
+}
+
+
+.custom-big-calendar .rbc-month-view .rbc-off-range-bg {
+  background-color: var(--palette-background-paper);
+  border: none !important;
+}
+
+
+.custom-big-calendar .rbc-month-view .rbc-today {
+  background-color: var(--palette-background-paper);
+  padding: 10 !important;
+}
+
+
+.custom-big-calendar .rbc-month-view .rbc-row-content .rbc-now .rbc-button-link {
+  background-color: var(--palette-primary-main);
+  color: #FFF !important;
+  border-radius: 30px;
+  font-weight: 700;
+  padding: 5px;
+  font-size: 14px !important;
+  margin: 4px 0px !important;
+}
+
+
+.custom-big-calendar .rbc-month-view .rbc-row-content .rbc-button-link {
+  color: #000 !important;
+  font-weight: 600;
+  padding-right: 5px !important;
+  padding-top: 5px !important;
+  font-size: 12px !important;
+}
+
+
+.custom-big-calendar .rbc-selected-cell {
+  border: none !important;
+  background-color: var(--palette-secondary-more-lighter) !important;
+}
+
+
+.custom-big-calendar .rbc-selected-cell .rbc-button-link {
+  color: "#000";
+}
+
+
+.custom-big-calendar .rbc-disabled-day {
+  background-color: #f5f5f5;
+  pointer-events: none;
+  color: #ccc;
+}
+
+
+.custom-big-calendar .rbc-month-view {
+  border: none !important;
+}
+
+
+.rbc-month-view,
+.rbc-day-bg,
+.rbc-date-cell,
+.rbc-header,
+.rbc-month-row,
+.rbc-row-segment {
+  border: none !important;
+}
+
+.custom-big-calendar .rbc-month-view .rbc-day-bg {
+  border: none !important;
+  transition: background-color 0.2s ease;
+}
+
+.custom-big-calendar .rbc-month-view .rbc-day-bg:hover {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+}
+
+.custom-big-calendar .rbc-month-view .rbc-date-cell {
+  border: none !important;
+}
+
+.custom-big-calendar .rbc-month-view .rbc-day-bg.rbc-off-range-bg:hover {
+  background-color: transparent !important;
+}
+
+
+.custom-big-calendar .rbc-timeslot-group .rbc-time-slot .rbc-label {
+  font-size: 12px;
+  font-weight: 600;
+  align-items: center;
+  /* margin: 200px !important; */
+}
+
+
+.custom-big-calendar .rbc-header .rbc-button-link {
+  font-size: 12px;
+  font-weight: 600;
+  align-items: center;
+
+  margin-top: 20px;
+  margin-bottom: 20px;
+  /* padding: 12px 0;
+  border: none !important;
+  font-weight: 700;
+  font-size: 12px;
+  text-align: center; */
+}
+
+
+.selected-calendar-date {
+  background-color: #e3f2fd !important;
+  /* transition: all 0.2s ease !important; */
+}
+
+/* 
+.selected-calendar-date:hover {
+  background-color: #c8d0e6 !important;
+} */
+
+/* .custom-big-calendar .selected-calendar-date .rbc-button-link {
+  color: #1565c0 !important;
+  font-weight: 600 !important;
+} */
+
+/* Selected Blocked Date - Soft green for unblock selection */
+.selected-blocked-calendar-date {
+  background-color: #e3f2fd !important;
+  color: #2e7d32 !important;
+  /* border-radius: 8px !important; */
+  /* transition: all 0.2s ease !important; */
+}
+
+.selected-blocked-calendar-date:hover {
+  background-color: #e3f2fd !important;
+}
+
+.custom-big-calendar .selected-blocked-calendar-date .rbc-button-link {
+  color: #2e7d32 !important;
+  font-weight: 600 !important;
+}
+
+/* Disabled/Blocked Date - Soft pink/red */
+.disabled-calendar-date {
+  background-color: #e6e5e5 !important;
+}
+
+
+
+
+
+
+
+/* .custom-big-calendar .rbc-selected-cell:first-child {
+  border-top-left-radius: 80px !important;
+  border-bottom-left-radius: 80px !important;
+}
+
+.custom-big-calendar .rbc-selected-cell:last-child {
+  border-top-right-radius: 80px !important;
+  border-bottom-right-radius: 80px !important;
+}
+
+
+.custom-big-calendar .rbc-selected-cell:last-child {
+  border-radius: 80px !important;
+}
+
+
+.custom-big-calendar .rbc-selected-cell:last-child {
+  border-radius: 80px !important;
+} */
