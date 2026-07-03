@@ -1,10 +1,11 @@
 // import {setAuthToken} from "../services/jwtAuth";
+import {imageUlr} from "src/constance";
 import {AuthRoutes} from "../routes/routes";
 
 export const isAuthenticated = () => {
 	// const token = localStorage.getItem("access_token");
 	// return !!token;
-	return true
+	return true;
 };
 
 export const getCurrentUser = () => {
@@ -31,5 +32,5 @@ export const clearAuth = () => {
 
 export const logout = () => {
 	clearAuth();
-	window.location.href = AuthRoutes.Login;
+	window.location.href = imageUlr + AuthRoutes.Login;
 };

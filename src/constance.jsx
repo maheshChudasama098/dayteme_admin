@@ -1,8 +1,8 @@
-export const DevelopMood = true;
+export const DevelopMood = false;
 
-export const apiURL = DevelopMood ? "http://localhost:3000" : "https://nodejs.thedevelopment.in/crm-node";
+export const apiURL = DevelopMood ? "http://192.168.0.184/Projects/Laravel/dayteme/public/api/" : "https://laraveltz.thedevelopment.in/jk/dayteme/public/api";
 
-export const imageUlr = "";
+export const imageUlr = "/dayteme";
 
 export const DateFormat = "DD/MM/YYYY";
 

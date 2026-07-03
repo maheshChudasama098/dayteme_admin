@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import {useDispatch} from "react-redux";
 import {Link, useNavigate} from "react-router-dom";
 
 import * as Yup from "yup";
@@ -9,7 +10,7 @@ import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import {alpha, useTheme} from "@mui/material";
+import {useTheme} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -18,10 +19,13 @@ import Iconify from "src/components/common/iconify";
 import {AdminRoutes, AuthRoutes} from "src/routes/routes";
 import {CheckboxForm, TextFieldForm} from "src/components/common/inputs/index";
 import {CustomBackGround} from "src/components/common/CustomBackGround";
+import {LoginServices} from "src/services/Auth.Services";
+import {getErrorMessage} from "src/utils/utils";
 
 const LoginPage = () => {
-	const navigate = useNavigate();
 	const theme = useTheme();
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
 
 	const [errMsg, setErrMsg] = useState(null);
 	const [showPassword, setShowPassword] = useState(true);
@@ -33,16 +37,29 @@ const LoginPage = () => {
 		event.preventDefault();
 	};
 
-	const onSubmit = () => {
+	const onSubmit = (data) => {
 		setErrMsg(null);
 		setFormSubmitLoader(true);
-		navigate(AdminRoutes?.Dashboard);
+		dispatch(
+			LoginServices(data, (res) => {
+				setFormSubmitLoader(false);
+				if (res?.success) {
+					localStorage.setItem("access_token", res?.data?.access_token);
+					localStorage.setItem("user", JSON.stringify(res?.data?.user));
+					// localStorage.setItem("refresh_token", res?.data?.refresh_token);
+					navigate(AdminRoutes?.Dashboard);
+				} else {
+					const errorMessage = getErrorMessage(res);
+					setErrMsg(errorMessage || res?.message || "Login failed. Please try again.");
+				}
+			}),
+		);
 	};
 
 	return (
 		<CustomBackGround
 			imageName="bg3.png"
-			headingText="Welcome to Daythe Panel"
+			headingText="Welcome to Dayteme Panel"
 			subText="Welcome back! Please login to your account."
 			rightContent={
 				<Box sx={{}}>
@@ -67,10 +84,11 @@ const LoginPage = () => {
 
 						<Formik
 							enableReinitialize
-							initialValues={{email: "", password: ""}}
+							initialValues={{email: "", password: "", remember_me: false}}
 							validationSchema={Yup.object().shape({
 								email: Yup.string().email("Invalid email address").trim().lowercase().required("Email is required"),
 								password: Yup.string().required("Password is required"),
+								remember_me: Yup.boolean().default(false),
 							})}
 							onSubmit={onSubmit}>
 							{(props) => (

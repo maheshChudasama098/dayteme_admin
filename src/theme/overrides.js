@@ -11,6 +11,8 @@ const borderRadius = {
 	MuiTextField: 3 * GLOBAL_RADIUS,
 	lg: 4 * GLOBAL_RADIUS,
 	xl: 5 * GLOBAL_RADIUS,
+	MuiTabs: 10,
+	MuiTab: 10,
 };
 
 export const overrides = {
@@ -328,6 +330,48 @@ export const overrides = {
 				borderRadius: 50,
 				padding: "8px 12px",
 			},
+		},
+	},
+
+	MuiTabs: {
+		styleOverrides: {
+			root: ({theme}) => ({
+				backgroundColor: theme.palette.grey[300],
+				borderRadius: theme.shape.borderRadius * borderRadius.MuiTabs,
+				padding: "0px",
+				lineHeight: 0,
+				minHeight: 35,
+				width: "fit-content",
+				transition: "all 0.3s ease",
+				"& .MuiTabs-indicator": {
+					height: "calc(100% - 8px)",
+					bottom: "50%",
+					transform: "translateY(50%)",
+					backgroundColor: theme.palette.primary.main,
+					zIndex: 0,
+					transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+					boxShadow: theme.shadows[3],
+					borderRadius: theme.shape.borderRadius * borderRadius.MuiTab,
+				},
+			}),
+		},
+	},
+	MuiTab: {
+		styleOverrides: {
+			root: ({theme}) => ({
+				position: "relative",
+				margin: 4,
+				borderRadius: theme.shape.borderRadius * borderRadius.MuiTab,
+				minHeight: 30,
+				fontSize: 12,
+				zIndex: 1,
+				color: theme.palette.text.secondary,
+				"&.Mui-selected": {
+					transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+					color: theme.palette.background.paper,
+					fontWeight: 700,
+				},
+			}),
 		},
 	},
 };

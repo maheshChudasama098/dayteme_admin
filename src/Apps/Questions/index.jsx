@@ -1,51 +1,51 @@
-import React, {useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import {useNavigate, useSearchParams} from "react-router-dom";
+import {useSearchParams} from "react-router-dom";
+import React, {useState, useEffect} from "react";
 
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Skeleton from "@mui/material/Skeleton";
-import {alpha, Chip, useTheme} from "@mui/material";
 import Typography from "@mui/material/Typography";
+import Chip from "@mui/material/Chip";
+import {useTheme, alpha} from "@mui/material/styles";
 
 import {Table} from "antd";
 
-import {AdminRoutes} from "src/routes/routes";
 import Iconify from "src/components/common/iconify";
+import CustomTooltip from "src/components/common/CustomTooltip";
 import CustomPagination from "src/components/common/CustomPagination";
 import CustomSearchInput from "src/components/common/CustomSearchInput";
 
-import UserModel from "./UserModel";
-import {DeleteAdminUserServices, GetAdminUsersListServices} from "src/services/Users.Services";
-
-import {CustomActionIconButton} from "src/components/common/CustomActionIconButton";
 import {sweetAlertQuestion, sweetAlerts, sweetAlertSuccess} from "src/utils/sweet-alerts";
+
+import QuestionModel from "./QuestionModel";
+import {DeleteAdminPromptServices, GetAdminPromptsListServices} from "src/services/Prompts.Services";
+import {CustomActionIconButton} from "src/components/common/CustomActionIconButton";
 import {getErrorMessage} from "src/utils/utils";
 
-const Index = () => {
+export default function Questions() {
 	const theme = useTheme();
 	const dispatch = useDispatch();
-	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	// pagination and search
 	const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
 	const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || 10);
-	const [totalRecode, setTotalRecode] = useState(10);
+	const [totalRecode, setTotalRecode] = useState(5);
 	// search
+	const [search, setSearch] = useState(searchParams.get("search") || "");
 	const [field, setField] = useState(searchParams.get("field") || null);
 	const [order, setOrder] = useState(searchParams.get("order") || null);
-	const [search, setSearch] = useState(searchParams.get("search") || "");
+
+	const [isCreateOpen, setIsCreateOpen] = useState(false);
 
 	const [list, setList] = useState([]);
 	const [apiFlag, setApiFlag] = useState(false);
-
 	const [loadingLoader, setLoadingLoader] = useState(false);
-	const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-	const [userData, setUserData] = useState(null);
+
+	const [selectedQuestion, setSelectedQuestion] = useState({});
 
 	useEffect(() => {
 		function apiCallAction() {
@@ -60,12 +60,12 @@ const Index = () => {
 			};
 
 			dispatch(
-				GetAdminUsersListServices(payLoad, (res) => {
+				GetAdminPromptsListServices(payLoad, (res) => {
 					setLoadingLoader(false);
 					if (res?.success) {
 						setLoadingLoader(false);
-						setList(res?.data?.users);
-						setTotalRecode(res?.data?.pagination?.total);
+						setList(res?.data?.prompts);
+						setTotalRecode(res?.data?.pagination?.total || 0);
 					}
 				}),
 			);
@@ -83,20 +83,26 @@ const Index = () => {
 		});
 	}, [setSearchParams, page, pageSize, search, field, order]);
 
-	// const showDisplayAction = () => {
-	// 	setModifyModel(false);
-	// 	setApiFlag(!apiFlag);
-	// };
+	const handleSearch = (value) => {
+		setSearch(value);
+		setPage(1);
+	};
 
-	const DeleteActions = (id) => {
-		sweetAlertQuestion("This user will be permanently deleted. You won’t be able to recover it.", "Delete User?")
+	const handleSort = (field, order) => {
+		setField(field);
+		setOrder(order);
+		setPage(1);
+	};
+
+	const DeleteSubmit = (id) => {
+		sweetAlertQuestion("This Question will be permanently deleted. You won’t be able to recover it.", "Delete Question?")
 			.then((result) => {
 				if (result) {
 					dispatch(
-						DeleteAdminUserServices(id, (res) => {
+						DeleteAdminPromptServices(id, (res) => {
 							if (res?.success) {
 								setApiFlag(!apiFlag);
-								sweetAlertSuccess("User deleted successfully");
+								sweetAlertSuccess("Question deleted successfully");
 							} else {
 								const errorMessage = getErrorMessage(res);
 								sweetAlerts("error", errorMessage);
@@ -110,118 +116,81 @@ const Index = () => {
 			});
 	};
 
+	const CreateHandleSuccess = () => {
+		setIsCreateOpen(false);
+		setTimeout(() => {
+			if (!selectedQuestion?.id) {
+				setPage(1);
+			}
+			setApiFlag(!apiFlag);
+		}, 1000);
+	};
+
 	const columns = [
 		{
-			title: "User",
-			key: "user",
-			fixed: "left",
-			width: 350,
-			ellipsis: true,
-			render: (_, record) => (
-				<Stack direction="row" alignItems="center" spacing={1.5}>
-					<Avatar variant="rounded" sx={{width: 40, height: 40}} src={record?.image} alt={record?.name} />
-					<Box>
-						<Typography variant="subtitle2" color="text.primary" noWrap>
-							{record?.name}
-						</Typography>
-						<Typography variant="caption" color="text.secondary" noWrap>
-							{record?.email}
-						</Typography>
-					</Box>
-				</Stack>
+			title: "Question",
+			dataIndex: "question",
+			key: "question",
+			width: 400,
+			render: (question) => (
+				<Typography variant="caption" sx={{fontWeight: 500, color: "text.primary"}}>
+					{question}
+				</Typography>
 			),
 		},
 		{
-			title: "Phone & Location",
-			dataIndex: "phone",
-			key: "phone",
-			width: 250,
-			render: (_, record) => (
-				<Stack direction="column">
-					<Typography variant="subtitle2" sx={{color: "text.primary"}}>
-						{record?.phone_number || "-"}
-					</Typography>
-					<Typography variant="caption" sx={{color: "text.secondary"}}>
-						{record?.location?.name || "-"}
-					</Typography>
-				</Stack>
-			),
-		},
-		{
-			title: "Gender & DOB",
-			key: "gender",
-			render: (_, record) => (
-				<Stack direction="column">
-					<Typography variant="subtitle2" sx={{color: "text.primary"}}>
-						{record?.gender?.name || "-"}
-					</Typography>
-					<Typography variant="caption" sx={{color: "text.secondary"}}>
-						{record?.dob || "-"}
-					</Typography>
-				</Stack>
-			),
-		},
-		{
-			title: "Sparks",
-			dataIndex: "total_spark",
-			key: "total_spark",
-			render: (val) => (
-				<Stack direction="row" alignItems="center" spacing={0.5}>
-					<Iconify icon="mingcute:fire-fill" width={18} sx={{color: "warning.main"}} />
-					<Typography variant="subtitle2" sx={{fontWeight: 800, color: "warning.main"}}>
-						{val || 0}
-					</Typography>
-				</Stack>
+			title: "Sort Order",
+			dataIndex: "sort_order",
+			key: "sort_order",
+			align: "right",
+			render: (sort_order) => (
+				<Typography variant="caption" sx={{color: "text.primary"}}>
+					{sort_order}
+				</Typography>
 			),
 		},
 		{
 			title: "Status",
-			key: "status",
-			render: (_, record) => {
-				const isPaused = record?.is_paused;
-				const isCompleted = record?.profile_completed;
-
-				return (
-					<Chip
-						label={isPaused ? "Paused" : isCompleted ? "Active" : "Incomplete"}
-						size="small"
-						sx={{
-							bgcolor: alpha(isPaused ? theme.palette.error.main : isCompleted ? theme.palette.success.main : theme.palette.warning.main, 0.1),
-							color: isPaused ? "error.main" : isCompleted ? "success.main" : "warning.main",
-							fontWeight: 800,
-							border: "none",
-							borderRadius: 1.5,
-						}}
-					/>
-				);
-			},
+			dataIndex: "is_active",
+			key: "is_active",
+			render: (is_active) => (
+				<Chip
+					label={is_active ? "Active" : "Inactive"}
+					size="small"
+					sx={{
+						bgcolor: is_active ? alpha(theme.palette.success.main, 0.2) : alpha(theme.palette.error.main, 0.2),
+						color: is_active ? "success.main" : "error.main",
+						textTransform: "uppercase",
+						borderRadius: 1.5,
+					}}
+				/>
+			),
 		},
 		{
 			title: "Action",
-			dataIndex: "action",
 			key: "action",
-			fixed: "right",
 			align: "center",
-			width: 90,
+			fixed: "right",
+			width: 120,
 			render: (_, record) => (
 				<Stack spacing={0.5} direction="row" sx={{justifyContent: "right"}}>
 					<CustomActionIconButton
-						tooltip="Edit User"
+						tooltip="Edit Question"
 						color="success"
 						onClick={(e) => {
 							e.stopPropagation();
-							setUserData(record);
-							setIsUserModalOpen(true);
+							setSelectedQuestion(record);
+							setIsCreateOpen(true);
 						}}>
 						<Iconify icon="solar:pen-bold-duotone" width={16} />
 					</CustomActionIconButton>
 
 					<CustomActionIconButton
 						color="error"
-						tooltip="Delete User"
+						tooltip="Delete Question"
 						onClick={(e) => {
 							e.stopPropagation();
-							DeleteActions(record?.id);
+							DeleteSubmit(record?.id);
 						}}>
 						<Iconify icon="solar:trash-bin-trash-bold-duotone" width={16} />
 					</CustomActionIconButton>
@@ -235,38 +204,36 @@ const Index = () => {
 			<Stack spacing={2} direction="row" sx={{justifyContent: "space-between", alignItems: "flex-start"}}>
 				<Box>
 					<Typography variant="h3" fontWeight={800} color="text.primary" gutterBottom>
-						User Management
+						Profile Questions
 					</Typography>
 					<Typography variant="body1" sx={{color: "text.secondary"}}>
-						Manage your users, view their profiles, and update their statuses.
+						Total {totalRecode} Questions found
 					</Typography>
 				</Box>
 
 				<Box>
 					<Stack spacing={1.5} direction="row">
-						<Button variant="outlined" color="primary" startIcon={<Iconify icon="solar:download-bold-duotone" />} sx={{borderRadius: 2, fontWeight: 800}}>
-							Export CSV
-						</Button>
 						<Button
 							color="primary"
 							variant="contained"
-							startIcon={<Iconify icon="mingcute:user-add-2-fill" width={20} />}
+							startIcon={<Iconify icon="solar:chat-line-bold" width={20} />}
 							sx={{borderRadius: 2, fontWeight: 800, boxShadow: theme.shadows[2]}}
 							onClick={() => {
-								setIsUserModalOpen(true);
-								setUserData(null);
+								setIsCreateOpen(true);
+								setSelectedQuestion({});
 							}}>
-							Add New User
+							Add New Question
 						</Button>
 					</Stack>
 				</Box>
 			</Stack>
 
-			<Card sx={{}}>
+			<Card sx={{borderRadius: 4, boxShadow: theme.shadows[2], overflow: "hidden"}}>
 				<Stack spacing={2}>
 					<Stack spacing={1} direction="row" sx={{m: 2, px: 2, pt: 2, pb: 1, justifyContent: "space-between"}}>
-						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={setSearch} placeholder="Search by name, email..." width={400} />
+						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={handleSearch} placeholder="Search Question..." width={400} />
 					</Stack>
+
 					<Box
 						sx={{
 							"& .ant-table-wrapper": {borderRadius: 0},
@@ -310,17 +277,11 @@ const Index = () => {
 							scroll={{x: "max-content"}}
 							pagination={false}
 							rowKey="id"
-							onRow={(record) => ({
-								onClick: () => navigate(`${AdminRoutes?.UserDetails}?id=${record.id}`),
-								style: {cursor: "pointer"},
-							})}
 							onChange={(_, __, sorter) => {
 								if (sorter?.field && sorter?.order) {
-									setField(sorter?.field);
-									setOrder(sorter?.order);
+									handleSort(sorter?.field, sorter?.order);
 								} else {
-									setField(null);
-									setOrder(null);
+									handleSort(null, null);
 								}
 							}}
 						/>
@@ -339,19 +300,15 @@ const Index = () => {
 				</Stack>
 			</Card>
 
-			{isUserModalOpen && (
-				<UserModel
-					open={isUserModalOpen}
-					data={userData}
-					handleClose={() => setIsUserModalOpen(false)}
-					cdSuccess={() => {
-						setApiFlag(!apiFlag);
-						setIsUserModalOpen(false);
-					}}
-				/>
-			)}
+			<QuestionModel
+				open={isCreateOpen}
+				handleClose={() => {
+					setIsCreateOpen(false);
+					setSelectedQuestion(null);
+				}}
+				cdSuccess={CreateHandleSuccess}
+				data={selectedQuestion}
+			/>
 		</Stack>
 	);
-};
-
-export default Index;
+}

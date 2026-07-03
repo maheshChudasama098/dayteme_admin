@@ -13,7 +13,7 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
 	<HelmetProvider>
 		<Provider store={store}>
-			<BrowserRouter basename="/">
+			<BrowserRouter basename="/dayteme">
 				<Suspense>
 					<App />
 				</Suspense>

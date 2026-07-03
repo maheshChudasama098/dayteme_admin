@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {useDispatch} from "react-redux";
-import {Link, useNavigate, useSearchParams} from "react-router-dom";
+import {Link, useLocation, useNavigate, useSearchParams} from "react-router-dom";
 
 import * as Yup from "yup";
 import {Formik, Form} from "formik";
@@ -19,9 +19,15 @@ import {AuthRoutes} from "src/routes/routes";
 import Iconify from "src/components/common/iconify";
 import {TextFieldForm} from "src/components/common/inputs";
 import {CustomBackGround} from "src/components/common/CustomBackGround";
+import {ResetPasswordServices} from "src/services/Auth.Services";
+import {getErrorMessage} from "src/utils/utils";
 
 function Index() {
 	const theme = useTheme();
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
+	const location = useLocation();
+	const email = location.state?.email;
 
 	const [error, setError] = useState("");
 	const [message, setMessage] = useState("");
@@ -36,9 +42,34 @@ function Index() {
 		event.preventDefault();
 	};
 
-	const onSubmit = () => {
+	const onSubmit = (values) => {
+		console.log("email", email);
 		setError("");
+		if (!email) {
+			setError("Email is missing. Please restart the forgot password flow.");
+			return;
+		}
 		setFormSubmitLoader(true);
+		dispatch(
+			ResetPasswordServices(
+				{
+					email: email,
+					password: values.newPassword,
+					password_confirmation: values.confirmPassword,
+				},
+				(res) => {
+					setFormSubmitLoader(false);
+
+					if (res?.success) {
+						setMessage(res?.message || "Password reset successfully.");
+						navigate(AuthRoutes.Login);
+					} else {
+						const errorMessage = getErrorMessage(res);
+						setError(errorMessage || res?.message || "Please try again.");
+					}
+				},
+			),
+		);
 	};
 
 	return (

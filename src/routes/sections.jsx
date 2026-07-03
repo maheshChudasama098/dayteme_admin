@@ -22,7 +22,19 @@ export const ResetPassword = lazy(() => import("../Apps/Auth/ResetPassword"));
 export const Dashboard = lazy(() => import("../Apps/Dashboard"));
 export const UsersList = lazy(() => import("../Apps/Users"));
 export const UserDetails = lazy(() => import("../Apps/Users/UserDetails"));
+
 export const LocationsList = lazy(() => import("../Apps/Locations"));
+export const QuestionsList = lazy(() => import("../Apps/Questions"));
+export const DateList = lazy(() => import("../Apps/Date"));
+export const DateDetails = lazy(() => import("../Apps/Date/DateDetails"));
+export const DateRatingsList = lazy(() => import("../Apps/DateRatings"));
+export const GiftList = lazy(() => import("../Apps/Gift"));
+export const GiftDetails = lazy(() => import("../Apps/Gift/GiftDetails"));
+
+export const UserReportsList = lazy(() => import("../Apps/UserReports"));
+export const UserReportDetails = lazy(() => import("../Apps/UserReports/UserReportDetails"));
+export const PaymentList = lazy(() => import("../Apps/Payments"));
+export const Profile = lazy(() => import("../Apps/Profile"));
 
 export default function Router() {
 	const location = useLocation();
@@ -41,6 +53,16 @@ export default function Router() {
 		{path: AdminRoutes?.UsersList, element: <UsersList />},
 		{path: AdminRoutes?.UserDetails, element: <UserDetails />},
 		{path: AdminRoutes?.LocationList, element: <LocationsList />},
+		{path: AdminRoutes?.QuestionList, element: <QuestionsList />},
+		{path: AdminRoutes?.DateList, element: <DateList />},
+		{path: AdminRoutes?.DateDetails, element: <DateDetails />},
+		{path: AdminRoutes?.DateRatingsList, element: <DateRatingsList />},
+		{path: AdminRoutes?.GiftList, element: <GiftList />},
+		{path: AdminRoutes?.GiftDetails, element: <GiftDetails />},
+		{path: AdminRoutes?.UserReportsList, element: <UserReportsList />},
+		{path: AdminRoutes?.UserReportDetails, element: <UserReportDetails />},
+		{path: AdminRoutes?.PaymentList, element: <PaymentList />},
+		{path: AdminRoutes?.Profile, element: <Profile />},
 	];
 
 	const routes = useRoutes([

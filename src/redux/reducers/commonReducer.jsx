@@ -7,7 +7,7 @@ const INIT_STATE = {
 	pageHerder: null,
 	themeColor: "primary",
 	// themeMode: "dark",
-	themeMode: "dark",
+	themeMode: "light",
 };
 
 const reducers = (state = INIT_STATE, action) => {

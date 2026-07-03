@@ -7,7 +7,7 @@ import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import {alpha, useTheme} from "@mui/material";
+import {useTheme} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import InputAdornment from "@mui/material/InputAdornment";
 
@@ -17,11 +17,15 @@ import {Form, Formik} from "formik";
 import Iconify from "src/components/common/iconify";
 import {OTPFieldForm, TextFieldForm} from "src/components/common/inputs";
 import {CustomBackGround} from "src/components/common/CustomBackGround";
+import {useDispatch} from "react-redux";
+import {ForgotPasswordServices, resendOTPServices, verifyOTPServices} from "src/services/Auth.Services";
+import {getErrorMessage} from "src/utils/utils";
 
 const RESEND_COOLDOWN = 60; // 60 seconds cooldown
 
 function ForgotPassword() {
 	const theme = useTheme();
+	const dispatch = useDispatch();
 	const navigate = useNavigate();
 
 	const [formSubmitLoader, setFormSubmitLoader] = useState(false);
@@ -43,14 +47,68 @@ function ForgotPassword() {
 	}, [cooldownSeconds]);
 
 	const handleForgotPassword = (values) => {
+		// setError(null);
+		// setFormSubmitLoader(true);
+		// setEmail(values.email);
+		// setIsEmailSent(true);
+
 		setError(null);
+
 		setFormSubmitLoader(true);
 		setEmail(values.email);
-		setIsEmailSent(true);
+
+		dispatch(
+			ForgotPasswordServices({email: values.email}, (response) => {
+				setFormSubmitLoader(false);
+				if (response?.success) {
+					setIsEmailSent(true);
+					setCooldownSeconds(RESEND_COOLDOWN);
+				} else {
+					const errorMessage = getErrorMessage(response);
+					setError(errorMessage || response?.message || "Please try again.");
+				}
+			}),
+		);
 	};
 
-	const handleVerifyCode = () => {
+	const handleResendOTP = (values) => {
 		setError(null);
+
+		setFormSubmitLoader(true);
+		setEmail(values.email);
+
+		dispatch(
+			resendOTPServices({email: values.email}, (response) => {
+				setFormSubmitLoader(false);
+				if (response?.success) {
+					setIsEmailSent(true);
+					setCooldownSeconds(RESEND_COOLDOWN);
+				} else {
+					const errorMessage = getErrorMessage(response);
+					setError(errorMessage || response?.message || "Please try again.");
+				}
+			}),
+		);
+	};
+
+	const handleVerifyCode = (values) => {
+		setError(null);
+		dispatch(
+			verifyOTPServices({email, otp: values.code}, (response) => {
+				if (response?.success) {
+					const verified = response?.data?.verified;
+					if (!verified) {
+						setError(response?.message || "Reset token was not returned by the server.");
+						return;
+					} else {
+						navigate(AuthRoutes.ResetPassword, {state: {email}});
+					}
+				} else {
+					const errorMessage = getErrorMessage(response);
+					setError(errorMessage || response?.message || "Please try again.");
+				}
+			}),
+		);
 	};
 
 	return (
@@ -141,7 +199,7 @@ function ForgotPassword() {
 												}}
 												onClick={() => {
 													if (cooldownSeconds === 0) {
-														handleForgotPassword({email});
+														handleResendOTP({email});
 													}
 												}}>
 												<Stack direction={"row"} sx={{alignItems: "center"}}>

@@ -12,7 +12,7 @@ export default function CustomBreadcrumbs({btnStr = "Back", backAction, links, s
 	const navigate = useNavigate();
 
 	return (
-		<Stack spacing={2} direction="row" sx={{alignItems: "center"}}>
+		<Stack spacing={1} direction="row" sx={{alignItems: "center"}}>
 			{
 				<Box
 					sx={{
@@ -28,7 +28,7 @@ export default function CustomBreadcrumbs({btnStr = "Back", backAction, links, s
 							backAction();
 						}
 					}}>
-					<i className="fa-solid fa-angle-left" style={{fontSize: 10, marginRight: 3}} />
+					<i className="fa-solid fa-angle-left" style={{fontSize: 10, marginRight: 2}} />
 					<Typography variant="subtitle2" color="text.primary" sx={{cursor: "pointer", textDecoration: "underline"}}>
 						{btnStr}
 					</Typography>
@@ -36,10 +36,10 @@ export default function CustomBreadcrumbs({btnStr = "Back", backAction, links, s
 			}
 			<Breadcrumbs
 				separator="›"
-				aria-label="breadcrumb"
+				// separator="|"
 				sx={{
 					color: "text.primary",
-					textTransform: "uppercase",
+					// textTransform: "uppercase",
 					...sx,
 				}}>
 				{links.map((item, index) => {
@@ -57,7 +57,7 @@ export default function CustomBreadcrumbs({btnStr = "Back", backAction, links, s
 					// Last item — non-clickable current page label
 					if (isLast || (!item.link && !item.onClick)) {
 						return (
-							<Typography key={index} variant="body2" color="primary" sx={{fontWeight: 700}}>
+							<Typography key={index} variant="body2" color="text.disabled">
 								{item.name}
 							</Typography>
 						);
@@ -88,12 +88,11 @@ export default function CustomBreadcrumbs({btnStr = "Back", backAction, links, s
 							key={index}
 							variant="body2"
 							component={RouterLink}
-							underline="hover"
+							underline="none"
 							sx={{
-								fontWeight: 700,
-								color: "text.secondary",
+								color: "text.primary",
 								"&:hover": {
-									color: "text.primary",
+									color: "primary.main",
 								},
 							}}
 							to={item.link}>

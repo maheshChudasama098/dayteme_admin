@@ -6,6 +6,8 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 
 import {Dynamic404Illustration} from "src/components/common/Illustrations";
+import {imageUlr} from "src/constance";
+import {AuthRoutes} from "src/routes/routes";
 
 export default function NotFound() {
 	return (
@@ -38,7 +40,7 @@ export default function NotFound() {
 				</Typography>
 
 				<Button
-					href="/"
+					href={imageUlr + AuthRoutes.Login}
 					variant="contained"
 					size="large"
 					color="primary"

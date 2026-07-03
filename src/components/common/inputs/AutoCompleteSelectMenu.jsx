@@ -61,6 +61,7 @@ export const AutoCompleteSelectMenu = ({
         renderInput={(params) => (
           <TextField
             {...params}
+            placeholder="Select an option"
             onBlur={formik.handleBlur}
             error={formik.touched[field] && Boolean(formik.errors[field])}
             helperText={

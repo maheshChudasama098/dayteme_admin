@@ -9,14 +9,13 @@ import Button from "@mui/material/Button";
 import * as Yup from "yup";
 import {Form, Formik} from "formik";
 
-import {TextFieldForm} from "src/components/common/inputs";
+import {CheckboxForm, TextFieldForm} from "src/components/common/inputs";
 import {CustomDialogModel} from "src/components/common/CustomDialogModel";
-import {PostAdminLocationsListServices, PutAdminLocationsListServices} from "src/services/Locations.Services";
-
+import {PostAdminPromptsCreateServices, PutAdminPromptsUpdateServices} from "src/services/Prompts.Services";
 import {sweetAlertSuccess} from "src/utils/sweet-alerts";
 import {getErrorMessage} from "src/utils/utils";
 
-const LocationModel = ({open, handleClose, cdSuccess, data}) => {
+const QuestionModel = ({open, handleClose, cdSuccess, data}) => {
 	const dispatch = useDispatch();
 
 	const [errMsg, setErrMsg] = useState(null);
@@ -41,7 +40,7 @@ const LocationModel = ({open, handleClose, cdSuccess, data}) => {
 		setLoadingLoader(true);
 		if (data?.id) {
 			dispatch(
-				PutAdminLocationsListServices(data?.id, values, (res) => {
+				PutAdminPromptsUpdateServices(data?.id, values, (res) => {
 					setLoadingLoader(false);
 					if (res?.success) {
 						setModelOpenFlag(false);
@@ -55,12 +54,12 @@ const LocationModel = ({open, handleClose, cdSuccess, data}) => {
 			);
 		} else {
 			dispatch(
-				PostAdminLocationsListServices(values, (res) => {
+				PostAdminPromptsCreateServices(values, (res) => {
 					setLoadingLoader(false);
 					if (res?.success) {
 						setModelOpenFlag(false);
 						cdSuccess();
-						sweetAlertSuccess("Location added successfully");
+						sweetAlertSuccess("Question added successfully");
 					} else {
 						const errorMessage = getErrorMessage(res);
 						setErrMsg(errorMessage);
@@ -72,35 +71,37 @@ const LocationModel = ({open, handleClose, cdSuccess, data}) => {
 
 	return (
 		<CustomDialogModel
-			open={modelOpenFlag}
 			maxWidth={500}
 			minWidth={500}
+			open={modelOpenFlag}
 			handleClose={handleCloseAction}
-			title={data?.id ? "Edit Location" : "Create New Location"}
-			subTitle={data?.id ? "Update a location to your organization." : "Add a new location to your organization."}
+			title={data?.id ? "Edit Question" : "Create New Question"}
+			subTitle={data?.id ? "Update a question." : "Add a new question."}
 			child={
 				<Box>
 					<Formik
 						enableReinitialize
 						initialValues={{
-							name: data?.name || "",
-							lat: data?.lat || "",
-							long: data?.long || "",
+							question: data?.question || "",
+							sort_order: data?.sort_order || 1,
+							is_active: data?.is_active || false,
 						}}
 						validationSchema={Yup.object().shape({
-							name: Yup.string().trim().min(2, "Location name must be at least 2 characters").required("Location name is required"),
-							lat: Yup.number().required("Latitude is required"),
-							long: Yup.number().required("Longitude is required"),
+							question: Yup.string().trim().min(2, "Question must be at least 2 characters").required("Question is required"),
+							sort_order: Yup.number().min(1, "Sort order must be a positive number").required("Sort order is required"),
+							is_active: Yup.boolean().required("Question is required"),
 						})}
 						onSubmit={HandleSubmit}>
 						{(props) => (
 							<Form autoComplete="off" noValidate>
 								<Stack spacing={2}>
 									{errMsg && <Alert severity="error">{errMsg}</Alert>}
-									<TextFieldForm formik={props} label="Location Name" field="name" />
 
-									<TextFieldForm formik={props} label="Latitude" field="lat" />
-									<TextFieldForm formik={props} label="Longitude" field="long" />
+									<TextFieldForm formik={props} label="Question" field="question" multiline rows={3} />
+
+									<TextFieldForm formik={props} label="Sort Order" field="sort_order" type="number" />
+
+									<CheckboxForm formik={props} field="is_active" label="Is Active" />
 
 									<Stack spacing={1} direction="row" sx={{width: "100%", justifyContent: "flex-end"}}>
 										<Button
@@ -116,7 +117,7 @@ const LocationModel = ({open, handleClose, cdSuccess, data}) => {
 											Cancel
 										</Button>
 										<Button type="submit" variant="contained" fullWidth color="primary" disabled={!props.dirty || loadingLoader}>
-											{data?.id ? "Save Change" : "Add Location"}
+											{data?.id ? "Save Change" : "Add Question"}
 										</Button>
 									</Stack>
 								</Stack>
@@ -129,4 +130,4 @@ const LocationModel = ({open, handleClose, cdSuccess, data}) => {
 	);
 };
 
-export default LocationModel;
+export default QuestionModel;

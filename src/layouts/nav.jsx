@@ -74,7 +74,7 @@ export default function Nav({openNav, onCloseNav}) {
 						<Iconify icon="mingcute:love-fill" width={20} />
 					</Avatar>
 					<Typography variant="h5" sx={{fontWeight: 900}} color="text.primary">
-						Daythe
+						Dayteme
 					</Typography>
 				</Stack>
 			</Box>

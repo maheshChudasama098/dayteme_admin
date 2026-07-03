@@ -6,7 +6,7 @@ import {useTheme} from "@mui/material/styles";
 import {Tooltip} from "antd";
 
 const CustomTooltip = ({label, placement, children, ...props}) => {
-	const theme = useTheme();
+	// const theme = useTheme();
 	// Check if label is a string or JSX
 	const renderLabel = typeof label === "string" ? <span>{label}</span> : label;
 

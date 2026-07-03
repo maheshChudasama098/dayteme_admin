@@ -18,6 +18,7 @@ import {defaultFile} from "src/utils/utils";
 import {logout} from "src/utils/auth-utils";
 
 import {ColorCards} from "src/constance";
+import {AdminRoutes} from "src/routes/routes";
 
 //----------------------------------------------
 
@@ -41,8 +42,8 @@ export default function AccountPopover() {
 	const handleCloseNotif = () => {
 		setNotifOpen(false);
 	};
+	const userDetails = JSON.parse(localStorage.getItem("user"));
 
-	const {userDetails} = useSelector((state) => state?.auth);
 	const {themeColor, themeMode} = useSelector((state) => state.common);
 
 	const persistedAvatarSrc = defaultFile(userDetails?.avatar);
@@ -57,12 +58,9 @@ export default function AccountPopover() {
 		if (notifOpen) return;
 	}, [dispatch, notifOpen]);
 
-	// const handleColorChange = (color) => {
-	// 	dispatch({type: "THEME_COLOR_CHANGE", payload: color});
-	// };
-	// const handleModelChange = (model) => {
-	// 	dispatch({type: "THEME_MODE_CHANGE", payload: model});
-	// };
+	const handleColorChange = (color) => {
+		dispatch({type: "THEME_COLOR_CHANGE", payload: color});
+	};
 
 	const handleThemeSubmit = (values) => {
 		dispatch({type: "THEME_MODE_CHANGE", payload: values?.themeMode});
@@ -169,9 +167,9 @@ export default function AccountPopover() {
 
 					<Box sx={{p: 2}}>
 						{[
-							{label: "Home", icon: <i className="fa-solid fa-house" />},
-							{label: "Profile", icon: <i className="fa-solid fa-user" />},
-							{label: "Change Password", icon: <i className="fa-solid fa-key" />},
+							{label: "Home", icon: <i className="fa-solid fa-house" />, path: AdminRoutes.Dashboard},
+							{label: "Profile", icon: <i className="fa-solid fa-user" />, path: `${AdminRoutes.Profile}?tab=profile`},
+							{label: "Change Password", icon: <i className="fa-solid fa-key" />, path: `${AdminRoutes.Profile}?tab=password`},
 						].map((item) => (
 							<MenuItem
 								key={item.label}
@@ -214,7 +212,7 @@ export default function AccountPopover() {
 						))}
 					</Box>
 
-					<Box sx={{mx: 2, borderRadius: 3}}>
+					{/* <Box sx={{mx: 2, borderRadius: 3}}>
 						<Box
 							sx={(theme) => ({
 								px: 2,
@@ -272,7 +270,7 @@ export default function AccountPopover() {
 											},
 										})}
 										onClick={() => {
-											handleThemeSubmit({themeColor: item?.key});
+											handleColorChange(item?.key);
 										}}>
 										<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
 											<path
@@ -289,7 +287,7 @@ export default function AccountPopover() {
 								</Grid>
 							))}
 						</Grid>
-					</Box>
+					</Box> */}
 
 					<Box sx={{px: 3, py: 1, flex: 1}}>
 						<Button

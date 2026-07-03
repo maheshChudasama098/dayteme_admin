@@ -1,7 +1,9 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {useSearchParams, useNavigate} from "react-router-dom";
 
 import Box from "@mui/material/Box";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
 import Chip from "@mui/material/Chip";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -9,43 +11,53 @@ import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
+
 import Typography from "@mui/material/Typography";
 
 import Iconify from "src/components/common/iconify";
+import InterestedTab from "./InterestedTab";
+import MatchesTab from "./MatchesTab";
+import ProfileTab from "./ProfileTab";
+import DatesTab from "./DatesTab";
+import PaymentsTab from "./PaymentsTab";
+import GiftsTab from "./GiftsTab";
+import {useDispatch} from "react-redux";
+import {GetAdminUserDetailsServices} from "src/services/Users.Services";
 
 const UserDetails = () => {
+	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const id = searchParams.get("id");
 
-	// Dummy data simulating a comprehensive user profile
-	const user = {
-		id: id || "1",
-		image: "https://api.dicebear.com/7.x/avataaars/svg?seed=" + (id || "1"),
-		name: "Alice",
-		email: "alice.johnson@example.com",
-		identity: "Woman",
-		likeToDate: "Men",
-		fullName: "Alice Johnson",
-		born: "1995-04-12",
-		location: "New York, USA",
-		tellUsAboutYou: "I love exploring the city, trying new coffee shops, and reading sci-fi novels. Always up for an adventure or a quiet night in.",
-		tallAreYou: "5'6\" (168 cm)",
-		lifestyle: "Active, Non-smoker, Social drinker, Dog lover",
-		datesYouEnjoy: "Coffee dates, Museum visits, Hiking, Dinner at a cozy restaurant",
-		prompts: [
-			{question: "A life goal of mine...", answer: "To visit every national park."},
-			{question: "I geek out on...", answer: "Vintage cameras and photography."},
-			{question: "My most controversial opinion is...", answer: "Pineapple belongs on pizza."},
-		],
-		educationWork: "Software Engineer at TechCorp • B.S. in Computer Science",
-		status: "Active",
-		rate: "4.8/5",
+	const [currentTab, setCurrentTab] = useState("profile");
+
+	const handleTabChange = (event, newValue) => {
+		setCurrentTab(newValue);
 	};
 
+	const [user, setUser] = useState({});
+
+	useEffect(() => {
+		function apiCallAction() {
+			dispatch(
+				GetAdminUserDetailsServices(id, (res) => {
+					if (res?.success) {
+						setUser(res?.data?.user || {});
+					}
+				}),
+			);
+		}
+		if (id) {
+			apiCallAction();
+		}
+	}, [dispatch, id]);
+
+	const educationWork = [user?.education_work?.job_title, user?.education_work?.company, user?.education_work?.school].filter(Boolean).join(" • ");
+	const userImage = user?.photos?.length > 0 ? user.photos[0].file_name : "";
+
 	return (
-		<Stack spacing={3}>
-			{/* Header Section */}
+		<Stack spacing={2}>
 			<Stack spacing={2} direction="row" sx={{justifyContent: "space-between", alignItems: "center"}}>
 				<Box>
 					<Typography variant="h4" color="text.primary">
@@ -63,135 +75,84 @@ const UserDetails = () => {
 				</Box>
 			</Stack>
 
-			<Grid container spacing={3}>
-				{/* Left Column: Avatar & Quick Info */}
-				<Grid item xs={12} md={4}>
-					<Card sx={{p: 3, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center"}}>
-						<Avatar src={user.image} sx={{width: 150, height: 150, mb: 2, boxShadow: 3}} />
-						<Typography variant="h5" gutterBottom>
-							{user.name}
-						</Typography>
-						<Typography variant="body2" color="text.secondary" gutterBottom>
-							{user.email}
-						</Typography>
-						<Stack direction="row" spacing={1} sx={{mt: 1, mb: 2}}>
-							<Chip label={user.status} color="success" size="small" variant="outlined" />
-							<Chip label={`Rate: ${user.rate}`} color="primary" size="small" variant="outlined" />
+			<Grid container spacing={2}>
+				<Grid size={{xs: 12, md: 4}}>
+					<Card sx={{mb: 3, position: "relative", textAlign: "center"}}>
+						<Box
+							sx={{
+								height: 120,
+								position: "relative",
+								backgroundImage: "url(https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?q=80&w=2000)",
+								backgroundSize: "cover",
+								backgroundPosition: "center",
+							}}
+						/>
+						<Avatar
+							src={userImage}
+							sx={{
+								width: 100,
+								height: 100,
+								border: "4px solid #fff",
+								margin: "-50px auto 0",
+								position: "relative",
+								zIndex: 1,
+								boxShadow: 3,
+							}}
+						/>
+						<Box sx={{p: 3, pt: 2}}>
+							<Typography variant="h5" sx={{fontWeight: "bold", mb: 0.5}}>
+								{user?.name}
+							</Typography>
+							<Typography variant="body2" sx={{mb: 0.5}}>
+								{user?.email}
+							</Typography>
+							<Typography variant="body2" color="text.secondary" sx={{mb: 2}}>
+								{educationWork || "No education/work provided"}
+							</Typography>
+							<Stack direction="row" spacing={1} justifyContent="center">
+								<Chip label={user?.is_admin ? "Admin" : "Active"} color="success" size="small" variant="outlined" />
+								<Chip label={`Rate: ${user?.average_rating || 0}/5`} color="primary" size="small" variant="outlined" />
+							</Stack>
+						</Box>
+					</Card>
+
+					<Card sx={{p: 2}}>
+						<Stack direction="row" alignItems="center" justifyContent="space-between" sx={{mb: 2}}>
+							<Typography variant="subtitle1" sx={{fontWeight: "bold"}}>
+								Uploads
+							</Typography>
+							<Typography variant="body2" color="primary" sx={{cursor: "pointer"}}>
+								View All
+							</Typography>
 						</Stack>
+						<Grid container spacing={1}>
+							{(user?.photos?.length > 0 ? user.photos.slice(0, 3).map((p) => p.file_name) : []).map((img, i) => (
+								<Grid size={{xs: 4}} key={i}>
+									<Box component="img" src={img} sx={{width: "100%", borderRadius: 1, objectFit: "cover", aspectRatio: "1/1", display: "block"}} />
+								</Grid>
+							))}
+						</Grid>
 					</Card>
 				</Grid>
-
-				{/* Right Column: Detailed Info */}
-				<Grid item xs={12} md={8}>
-					<Card sx={{p: 3}}>
-						<Stack spacing={3}>
-							{/* Basic Details */}
-							<Box>
-								<Typography variant="h6" gutterBottom>
-									Basic Information
-								</Typography>
-								<Divider sx={{mb: 2}} />
-								<Grid container spacing={2}>
-									<Grid item xs={12} sm={6}>
-										<Typography variant="caption" color="text.secondary">
-											Full Name
-										</Typography>
-										<Typography variant="body1">{user.fullName}</Typography>
-									</Grid>
-									<Grid item xs={12} sm={6}>
-										<Typography variant="caption" color="text.secondary">
-											Identify As
-										</Typography>
-										<Typography variant="body1">{user.identity}</Typography>
-									</Grid>
-									<Grid item xs={12} sm={6}>
-										<Typography variant="caption" color="text.secondary">
-											Likes to Date
-										</Typography>
-										<Typography variant="body1">{user.likeToDate}</Typography>
-									</Grid>
-									<Grid item xs={12} sm={6}>
-										<Typography variant="caption" color="text.secondary">
-											Born
-										</Typography>
-										<Typography variant="body1">{user.born}</Typography>
-									</Grid>
-									<Grid item xs={12} sm={6}>
-										<Typography variant="caption" color="text.secondary">
-											Height
-										</Typography>
-										<Typography variant="body1">{user.tallAreYou}</Typography>
-									</Grid>
-									<Grid item xs={12} sm={6}>
-										<Typography variant="caption" color="text.secondary">
-											Location
-										</Typography>
-										<Typography variant="body1">{user.location}</Typography>
-									</Grid>
-								</Grid>
-							</Box>
-
-							{/* About and Lifestyle */}
-							<Box>
-								<Typography variant="h6" gutterBottom>
-									About & Lifestyle
-								</Typography>
-								<Divider sx={{mb: 2}} />
-								<Stack spacing={2}>
-									<Box>
-										<Typography variant="caption" color="text.secondary">
-											Tell us about you
-										</Typography>
-										<Typography variant="body1">{user.tellUsAboutYou}</Typography>
-									</Box>
-									<Box>
-										<Typography variant="caption" color="text.secondary">
-											A bit more about your lifestyle
-										</Typography>
-										<Typography variant="body1">{user.lifestyle}</Typography>
-									</Box>
-									<Box>
-										<Typography variant="caption" color="text.secondary">
-											Education & Work
-										</Typography>
-										<Typography variant="body1">{user.educationWork}</Typography>
-									</Box>
-								</Stack>
-							</Box>
-
-							{/* Dating Preferences */}
-							<Box>
-								<Typography variant="h6" gutterBottom>
-									Dating Preferences
-								</Typography>
-								<Divider sx={{mb: 2}} />
-								<Box>
-									<Typography variant="caption" color="text.secondary">
-										Kind of dates you enjoy
-									</Typography>
-									<Typography variant="body1">{user.datesYouEnjoy}</Typography>
-								</Box>
-							</Box>
-
-							{/* Prompts */}
-							<Box>
-								<Typography variant="h6" gutterBottom>
-									Profile Prompts
-								</Typography>
-								<Divider sx={{mb: 2}} />
-								<Stack spacing={2}>
-									{user.prompts.map((prompt, index) => (
-										<Box key={index} sx={{bgcolor: "background.neutral", p: 2, borderRadius: 1}}>
-											<Typography variant="subtitle2" color="primary" gutterBottom>
-												{prompt.question}
-											</Typography>
-											<Typography variant="body2">{prompt.answer}</Typography>
-										</Box>
-									))}
-								</Stack>
-							</Box>
-						</Stack>
-					</Card>
+				<Grid size={{xs: 12, md: 8}}>
+					<Stack spacing={2}>
+						<Box sx={{display: "flex", justifyContent: "center", alignItems: "flex-end"}}>
+							<Tabs value={currentTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
+								<Tab label="Profile" value="profile" disableRipple icon={<Iconify icon="gridicons:user" width={20} />} iconPosition="start" />
+								<Tab label="Interested" value="interested" disableRipple icon={<Iconify icon="icon-park-solid:like" width={16} />} iconPosition="start" />
+								<Tab label="Matches" value="matches" disableRipple icon={<Iconify icon="heroicons-solid:duplicate" width={20} />} iconPosition="start" />
+								<Tab label="Dates" value="dates" disableRipple icon={<Iconify icon="basil:calendar-solid" width={20} />} iconPosition="start" />
+								<Tab label="Payments" value="payments" disableRipple icon={<Iconify icon="fa7-solid:money-check-alt" width={20} />} iconPosition="start" />
+								<Tab label="Gifts" value="gifts" disableRipple icon={<Iconify icon="solar:gift-bold" width={20} />} iconPosition="start" />
+							</Tabs>
+						</Box>
+						{currentTab === "profile" && <ProfileTab user={user} />}
+						{currentTab === "interested" && <InterestedTab />}
+						{currentTab === "matches" && <MatchesTab />}
+						{currentTab === "dates" && <DatesTab />}
+						{currentTab === "payments" && <PaymentsTab />}
+						{currentTab === "gifts" && <GiftsTab />}
+					</Stack>
 				</Grid>
 			</Grid>
 		</Stack>

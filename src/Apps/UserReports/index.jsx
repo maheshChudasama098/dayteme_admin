@@ -1,30 +1,27 @@
-import {useDispatch} from "react-redux";
-import {useSearchParams} from "react-router-dom";
 import React, {useState, useEffect} from "react";
+import {useDispatch} from "react-redux";
+import {useSearchParams, useNavigate} from "react-router-dom";
 
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Stack from "@mui/material/Stack";
-import Button from "@mui/material/Button";
 import Skeleton from "@mui/material/Skeleton";
 import Typography from "@mui/material/Typography";
+import Avatar from "@mui/material/Avatar";
+import Chip from "@mui/material/Chip";
 import {useTheme, alpha} from "@mui/material/styles";
 
 import {Table} from "antd";
 
-import Iconify from "src/components/common/iconify";
 import CustomPagination from "src/components/common/CustomPagination";
 import CustomSearchInput from "src/components/common/CustomSearchInput";
-import {CustomActionIconButton} from "src/components/common/CustomActionIconButton";
+import Iconify from "src/components/common/iconify";
+import {AdminRoutes} from "src/routes/routes";
+import {GetAdminReportsListServices} from "src/services/Reports.Services";
 
-import {sweetAlertQuestion, sweetAlerts, sweetAlertSuccess} from "src/utils/sweet-alerts";
-
-import LocationModel from "./LocationModel";
-import {DeleteAdminLocationServices, GetAdminLocationsListServices} from "src/services/Locations.Services";
-import {fDateTime, getErrorMessage} from "src/utils/utils";
-
-export default function Tickets() {
+const UserReportsList = () => {
 	const theme = useTheme();
+	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const [searchParams, setSearchParams] = useSearchParams();
 
@@ -37,56 +34,9 @@ export default function Tickets() {
 	const [field, setField] = useState(searchParams.get("field") || null);
 	const [order, setOrder] = useState(searchParams.get("order") || null);
 
-	const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-	const [list, setList] = useState();
+	const [list, setList] = useState([]);
 	const [apiFlag, setApiFlag] = useState(false);
 	const [loadingLoader, setLoadingLoader] = useState(false);
-
-	const [selectedLocation, setSelectedLocation] = useState({});
-
-	const handleSearch = (value) => {
-		setSearch(value);
-		setPage(1);
-	};
-
-	const handleSort = (field, order) => {
-		setField(field);
-		setOrder(order);
-		setPage(1);
-	};
-
-	const DeleteSubmit = (id) => {
-		sweetAlertQuestion("This Location will be permanently deleted. You won’t be able to recover it.", "Delete Location?")
-			.then((result) => {
-				if (result) {
-					dispatch(
-						DeleteAdminLocationServices(id, (res) => {
-							if (res?.success) {
-								setApiFlag(!apiFlag);
-								sweetAlertSuccess("Location deleted successfully");
-							} else {
-								const errorMessage = getErrorMessage(res);
-								sweetAlerts("error", errorMessage);
-							}
-						}),
-					);
-				}
-			})
-			.catch((error) => {
-				console.error(error);
-			});
-	};
-
-	const CreateHandleSuccess = () => {
-		setIsCreateOpen(false);
-		setTimeout(() => {
-			if (!selectedLocation?.id) {
-				setPage(1);
-			}
-			setApiFlag(!apiFlag);
-		}, 1000);
-	};
 
 	useEffect(() => {
 		function apiCallAction() {
@@ -101,11 +51,11 @@ export default function Tickets() {
 			};
 
 			dispatch(
-				GetAdminLocationsListServices(payLoad, (res) => {
+				GetAdminReportsListServices(payLoad, (res) => {
 					setLoadingLoader(false);
 					if (res?.success) {
 						setLoadingLoader(false);
-						setList(res?.data?.locations);
+						setList(res?.data?.reports);
 						setTotalRecode(res?.data?.pagination?.total);
 					}
 				}),
@@ -126,42 +76,68 @@ export default function Tickets() {
 
 	const columns = [
 		{
-			title: "Location Name",
-			dataIndex: "name",
-			key: "name",
-			render: (name) => (
-				<Typography variant="subtitle2" sx={{fontWeight: 800, color: "text.primary"}}>
-					{name}
-				</Typography>
+			title: "Reporter",
+			key: "reporter",
+			width: 250,
+			render: (_, record) => (
+				<Stack direction="row" alignItems="center" spacing={1.5} sx={{py: 0.5}}>
+					<Avatar variant="rounded" sx={{bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main"}}>
+						{record?.reporter_user?.name?.charAt(0)}
+					</Avatar>
+					<Box>
+						<Typography variant="subtitle2" sx={{color: "text.primary"}}>
+							{record?.reporter_user?.name}
+						</Typography>
+						<Typography variant="caption" sx={{color: "text.secondary"}}>
+							{record?.reporter_user?.email}
+						</Typography>
+					</Box>
+				</Stack>
 			),
 		},
 		{
-			title: "Latitude",
-			dataIndex: "lat",
-			key: "lat",
-			render: (lat) => (
-				<Typography variant="caption" sx={{color: "text.secondary"}}>
-					{lat}
-				</Typography>
+			title: "Reported User",
+			key: "reportedUser",
+			width: 250,
+			render: (_, record) => (
+				<Stack direction="row" alignItems="center" spacing={1.5} sx={{py: 0.5}}>
+					<Avatar variant="rounded" sx={{bgcolor: alpha(theme.palette.error.main, 0.1), color: "error.main"}}>
+						{record?.reported_user?.name?.charAt(0)}
+					</Avatar>
+					<Box>
+						<Typography variant="subtitle2" sx={{color: "error.main"}}>
+							{record?.reported_user?.name}
+						</Typography>
+						<Typography variant="caption" sx={{color: "text.secondary"}}>
+							{record?.reported_user?.email}
+						</Typography>
+					</Box>
+				</Stack>
 			),
 		},
 		{
-			title: "Longitude",
-			dataIndex: "long",
-			key: "long",
-			render: (long) => (
-				<Typography variant="caption" sx={{color: "text.secondary"}}>
-					{long}
-				</Typography>
+			title: "Report Details",
+			key: "details",
+			width: 300,
+			render: (_, record) => (
+				<Stack direction="column">
+					<Typography variant="subtitle2" sx={{color: "text.primary"}}>
+						{record?.report_type}
+					</Typography>
+					<Typography variant="caption" sx={{color: "text.secondary", fontStyle: "italic", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden"}}>
+						"{record?.details}"
+					</Typography>
+				</Stack>
 			),
 		},
 		{
-			title: "created at",
+			title: "Date",
 			dataIndex: "created_at",
 			key: "created_at",
-			render: (date) => (
-				<Typography variant="caption" sx={{color: "text.secondary"}}>
-					{fDateTime(date)}
+			width: 120,
+			render: (created_at) => (
+				<Typography variant="body2" sx={{color: "text.secondary"}}>
+					{created_at ? new Date(created_at).toLocaleDateString() : ""}
 				</Typography>
 			),
 		},
@@ -169,31 +145,27 @@ export default function Tickets() {
 			title: "Action",
 			key: "action",
 			align: "center",
-			fixed: "right",
-			width: 120,
+			width: 90,
 			render: (_, record) => (
-				<Stack spacing={0.5} direction="row" sx={{justifyContent: "right"}}>
-					<CustomActionIconButton
-						tooltip="Edit Location"
-						color="success"
-						onClick={(e) => {
-							e.stopPropagation();
-							setSelectedLocation(record);
-							setIsCreateOpen(true);
-						}}>
-						<Iconify icon="solar:pen-bold-duotone" width={16} />
-					</CustomActionIconButton>
-
-					<CustomActionIconButton
-						color="error"
-						tooltip="Delete Location"
-						onClick={(e) => {
-							e.stopPropagation();
-							DeleteSubmit(record?.id);
-						}}>
-						<Iconify icon="solar:trash-bin-trash-bold-duotone" width={16} />
-					</CustomActionIconButton>
-				</Stack>
+				<Box
+					sx={{
+						display: "inline-flex",
+						justifyContent: "center",
+						alignItems: "center",
+						p: 1,
+						borderRadius: 2,
+						bgcolor: alpha(theme.palette.primary.main, 0.1),
+						color: "primary.main",
+						cursor: "pointer",
+						transition: "background 0.2s",
+						"&:hover": {bgcolor: alpha(theme.palette.primary.main, 0.2)},
+					}}
+					onClick={(e) => {
+						e.stopPropagation();
+						navigate(`${AdminRoutes?.UserReportDetails}?id=${record.id}`);
+					}}>
+					<Iconify icon="solar:eye-bold-duotone" width={18} />
+				</Box>
 			),
 		},
 	];
@@ -203,34 +175,18 @@ export default function Tickets() {
 			<Stack spacing={2} direction="row" sx={{justifyContent: "space-between", alignItems: "flex-start"}}>
 				<Box>
 					<Typography variant="h3" fontWeight={800} color="text.primary" gutterBottom>
-						Locations Management
+						User Reports
 					</Typography>
 					<Typography variant="body1" sx={{color: "text.secondary"}}>
-						Total {totalRecode} Locations found
+						Review and manage moderation reports submitted by users against other users.
 					</Typography>
-				</Box>
-
-				<Box>
-					<Stack spacing={1.5} direction="row">
-						<Button
-							color="primary"
-							variant="contained"
-							startIcon={<Iconify icon="ic:round-add-location-alt" width={18} />}
-							sx={{borderRadius: 2, fontWeight: 800, boxShadow: theme.shadows[2]}}
-							onClick={() => {
-								setIsCreateOpen(true);
-								setSelectedLocation({});
-							}}>
-							Add New Location
-						</Button>
-					</Stack>
 				</Box>
 			</Stack>
 
 			<Card sx={{borderRadius: 4, boxShadow: theme.shadows[2], overflow: "hidden"}}>
 				<Stack spacing={2}>
 					<Stack spacing={1} direction="row" sx={{m: 2, px: 2, pt: 2, pb: 1, justifyContent: "space-between"}}>
-						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={handleSearch} placeholder="Search Location..." width={400} />
+						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={setSearch} placeholder="Search Reports..." width={400} />
 					</Stack>
 
 					<Box
@@ -276,13 +232,10 @@ export default function Tickets() {
 							scroll={{x: "max-content"}}
 							pagination={false}
 							rowKey="id"
-							onChange={(_, __, sorter) => {
-								if (sorter?.field && sorter?.order) {
-									handleSort(sorter?.field, sorter?.order);
-								} else {
-									handleSort(null, null);
-								}
-							}}
+							onRow={(record) => ({
+								onClick: () => navigate(`${AdminRoutes?.UserReportDetails}?id=${record.id}`),
+								style: {cursor: "pointer"},
+							})}
 						/>
 					</Box>
 
@@ -298,16 +251,8 @@ export default function Tickets() {
 					/>
 				</Stack>
 			</Card>
-
-			<LocationModel
-				open={isCreateOpen}
-				handleClose={() => {
-					setIsCreateOpen(false);
-					setSelectedLocation(null);
-				}}
-				cdSuccess={CreateHandleSuccess}
-				data={selectedLocation}
-			/>
 		</Stack>
 	);
-}
+};
+
+export default UserReportsList;
