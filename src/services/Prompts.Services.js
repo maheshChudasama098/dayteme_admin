@@ -15,6 +15,21 @@ export function GetAdminPromptsListServices(params, cb) {
 	};
 }
 
+export function GetAdminPromptsExportServices(params, cb) {
+	return (dispatch) => {
+		dispatch({type: "FETCH_START"});
+		jwtAuthAxios
+			.get("/v1/admin/prompts/export", {params, responseType: "blob"})
+			.then((res) => {
+				dispatch({type: "FETCH_SUCCESS"});
+				if (cb) cb(res);
+			})
+			.catch((error) => {
+				if (cb) cb(error?.response || error);
+			});
+	};
+}
+
 export function PostAdminPromptsCreateServices(data, cb) {
 	return (dispatch) => {
 		dispatch({type: "FETCH_START"});

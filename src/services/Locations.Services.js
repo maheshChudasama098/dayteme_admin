@@ -30,6 +30,21 @@ export function GetAdminLocationsListServices(params, cb) {
 	};
 }
 
+export function GetAdminLocationsExportServices(params, cb) {
+	return (dispatch) => {
+		dispatch({type: "FETCH_START"});
+		jwtAuthAxios
+			.get("/v1/admin/locations/export", {params, responseType: "blob"})
+			.then((res) => {
+				dispatch({type: "FETCH_SUCCESS"});
+				if (cb) cb(res);
+			})
+			.catch((error) => {
+				if (cb) cb(error?.response || error);
+			});
+	};
+}
+
 export function PostAdminLocationsListServices(data, cb) {
 	return (dispatch) => {
 		dispatch({type: "FETCH_START"});

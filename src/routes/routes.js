@@ -9,6 +9,7 @@ export const AuthRoutes = {
 export const AdminRoutes = {
 	Dashboard: "/admin/dashboard",
 	UsersList: "/admin/users/list",
+	AdminUsersList: "/admin/admin-users",
 	UserDetails: "/admin/user/details",
 	LocationList: "/admin/locations",
 	QuestionList: "/admin/questions",
@@ -21,4 +22,15 @@ export const AdminRoutes = {
 	UserReportDetails: "/admin/user-reports/details",
 	PaymentList: "/admin/payments",
 	Profile: "/admin/profile",
+	VerificationList: "/admin/verification",
+	VerificationDetails: "/admin/verification/details",
+	ComplianceList: "/admin/compliance",
+	ComplianceDetails: "/admin/compliance/details",
+	TasksList: "/admin/tasks",
+	TaskDetails: "/admin/tasks/details",
+	AuditLogsList: "/admin/audit-logs",
+	AuditLogDetails: "/admin/audit-logs/details",
+	NotesList: "/admin/notes",
+	VenuesList: "/admin/venues",
+	VenuesDetails: "/admin/venues/details",
 };

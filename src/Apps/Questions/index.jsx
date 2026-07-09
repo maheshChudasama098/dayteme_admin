@@ -21,7 +21,8 @@ import CustomSearchInput from "src/components/common/CustomSearchInput";
 import {sweetAlertQuestion, sweetAlerts, sweetAlertSuccess} from "src/utils/sweet-alerts";
 
 import QuestionModel from "./QuestionModel";
-import {DeleteAdminPromptServices, GetAdminPromptsListServices} from "src/services/Prompts.Services";
+import QuestionFilter from "./QuestionFilter";
+import {DeleteAdminPromptServices, GetAdminPromptsListServices, GetAdminPromptsExportServices} from "src/services/Prompts.Services";
 import {CustomActionIconButton} from "src/components/common/CustomActionIconButton";
 import {getErrorMessage} from "src/utils/utils";
 
@@ -47,6 +48,11 @@ export default function Questions() {
 
 	const [selectedQuestion, setSelectedQuestion] = useState({});
 
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [filters, setFilters] = useState({
+		is_active: searchParams.get("is_active") || "",
+	});
+
 	useEffect(() => {
 		function apiCallAction() {
 			setLoadingLoader(true);
@@ -57,6 +63,7 @@ export default function Questions() {
 				field,
 				order,
 				search,
+				...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined)),
 			};
 
 			dispatch(
@@ -71,7 +78,7 @@ export default function Questions() {
 			);
 		}
 		apiCallAction();
-	}, [dispatch, apiFlag, search, page, pageSize, field, order]);
+	}, [dispatch, apiFlag, search, page, pageSize, field, order, filters]);
 
 	useEffect(() => {
 		setSearchParams({
@@ -80,8 +87,9 @@ export default function Questions() {
 			...(search && {search}),
 			...(field && {field}),
 			...(order && {order}),
+			...(filters.is_active !== "" && {is_active: filters.is_active}),
 		});
-	}, [setSearchParams, page, pageSize, search, field, order]);
+	}, [setSearchParams, page, pageSize, search, field, order, filters]);
 
 	const handleSearch = (value) => {
 		setSearch(value);
@@ -124,6 +132,31 @@ export default function Questions() {
 			}
 			setApiFlag(!apiFlag);
 		}, 1000);
+	};
+
+	const handleExport = () => {
+		const payLoad = {
+			search,
+			...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined)),
+		};
+		setLoadingLoader(true);
+		dispatch(
+			GetAdminPromptsExportServices(payLoad, (res) => {
+				setLoadingLoader(false);
+				if (res?.data) {
+					const url = window.URL.createObjectURL(new Blob([res.data]));
+					const link = document.createElement("a");
+					link.href = url;
+					link.setAttribute("download", "questions_export.csv");
+					document.body.appendChild(link);
+					link.click();
+					link.remove();
+					sweetAlertSuccess("Export downloaded successfully");
+				} else {
+					sweetAlerts("error", "Failed to export data");
+				}
+			}),
+		);
 	};
 
 	const columns = [
@@ -212,7 +245,17 @@ export default function Questions() {
 				</Box>
 
 				<Box>
-					<Stack spacing={1.5} direction="row">
+					<Stack spacing={1.5} direction={{xs: "column", md: "row"}}>
+						<Button
+							onClick={handleExport}
+							disabled={loadingLoader}
+							variant="outlined"
+							color="primary"
+							startIcon={<Iconify icon="solar:download-bold-duotone" />}
+							sx={{borderRadius: 2, fontWeight: 800}}
+						>
+							Export CSV
+						</Button>
 						<Button
 							color="primary"
 							variant="contained"
@@ -232,6 +275,16 @@ export default function Questions() {
 				<Stack spacing={2}>
 					<Stack spacing={1} direction="row" sx={{m: 2, px: 2, pt: 2, pb: 1, justifyContent: "space-between"}}>
 						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={handleSearch} placeholder="Search Question..." width={400} />
+						<Stack direction="row" spacing={1}>
+							{(() => {
+								const activeCount = Object.values(filters).filter((v) => v !== "").length;
+								return (
+									<Button variant={activeCount > 0 ? "contained" : "outlined"} startIcon={<Iconify icon="solar:filter-bold-duotone" />} onClick={() => setIsFilterOpen(true)}>
+										Filters {activeCount > 0 && `(${activeCount})`}
+									</Button>
+								);
+							})()}
+						</Stack>
 					</Stack>
 
 					<Box
@@ -308,6 +361,17 @@ export default function Questions() {
 				}}
 				cdSuccess={CreateHandleSuccess}
 				data={selectedQuestion}
+			/>
+
+			<QuestionFilter
+				open={isFilterOpen}
+				onClose={() => setIsFilterOpen(false)}
+				filters={filters}
+				setFilters={setFilters}
+				onApply={() => {
+					setPage(1);
+					setApiFlag(!apiFlag);
+				}}
 			/>
 		</Stack>
 	);

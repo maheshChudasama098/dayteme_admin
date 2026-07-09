@@ -1,34 +1,33 @@
 import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 import {useTheme} from "@mui/material/styles";
-import CustomTooltip from "./CustomTooltip";
 
 export const CustomActionIconButton = ({color = "primary", tooltip = "", children, ...props}) => {
 	const theme = useTheme();
 
 	return (
-		<CustomTooltip label={tooltip}>
+		<Tooltip title={tooltip}>
 			<IconButton
 				{...props}
 				sx={{
-					width: 30,
-					height: 30,
-					minWidth: 30,
-					borderRadius: 1.8,
+					width: 28,
+					height: 28,
+					minWidth: 28,
+					borderRadius: 1.5,
 					color: theme.palette[color].main,
 					backgroundColor: theme.palette.mode === "light" ? theme.palette[color].lighter : theme.palette[color].darker,
 					fontSize: 20,
-					// '&:hover': {
-					//   backgroundColor:
-					//     theme.palette.mode === 'light' ? theme.palette[color].light : theme.palette[color].dark,
-					// },
-
 					p: 0,
 					display: "flex",
 					justifyContent: "center",
 					alignItems: "center",
+					// '&:hover': {
+					//   backgroundColor:
+					//     theme.palette.mode === 'light' ? theme.palette[color].light : theme.palette[color].dark,
+					// },
 				}}>
 				{children}
 			</IconButton>
-		</CustomTooltip>
+		</Tooltip>
 	);
 };

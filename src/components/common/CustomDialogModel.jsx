@@ -36,6 +36,7 @@ export const CustomDialogModel = ({open, child, title, subTitle, handleClose, cl
 				minWidth,
 				display: "flex",
 				flexDirection: "column",
+				boxShadow :0
 			}}>
 			<Box
 				sx={{

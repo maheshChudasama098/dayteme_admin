@@ -17,7 +17,10 @@ import {AdminRoutes} from "src/routes/routes";
 import CustomPagination from "src/components/common/CustomPagination";
 import CustomSearchInput from "src/components/common/CustomSearchInput";
 import Iconify from "src/components/common/iconify";
-import {GetAdminDatesListServices} from "src/services/Dates.Services";
+import DateFilter from "./DateFilter";
+import {GetAdminDatesListServices, GetAdminDatesExportServices} from "src/services/Dates.Services";
+import {sweetAlerts, sweetAlertSuccess} from "src/utils/sweet-alerts";
+import { Button } from "@mui/material";
 
 const DateList = () => {
 	const theme = useTheme();
@@ -39,6 +42,11 @@ const DateList = () => {
 
 	const [loadingLoader, setLoadingLoader] = useState(false);
 
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [filters, setFilters] = useState({
+		status: searchParams.get("status") || "",
+	});
+
 	useEffect(() => {
 		function apiCallAction() {
 			setLoadingLoader(true);
@@ -49,6 +57,7 @@ const DateList = () => {
 				field,
 				order,
 				search,
+				...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined)),
 			};
 
 			dispatch(
@@ -63,7 +72,7 @@ const DateList = () => {
 			);
 		}
 		apiCallAction();
-	}, [dispatch, apiFlag, search, page, pageSize, field, order]);
+	}, [dispatch, apiFlag, search, page, pageSize, field, order, filters]);
 
 	useEffect(() => {
 		setSearchParams({
@@ -72,8 +81,9 @@ const DateList = () => {
 			...(search && {search}),
 			...(field && {field}),
 			...(order && {order}),
+			...(filters.status !== "" && {status: filters.status}),
 		});
-	}, [setSearchParams, page, pageSize, search, field, order]);
+	}, [setSearchParams, page, pageSize, search, field, order, filters]);
 
 	const columns = [
 		{
@@ -180,12 +190,57 @@ const DateList = () => {
 						Manage and view all scheduled dates between users on the platform.
 					</Typography>
 				</Box>
+				
+				<Box>
+					<Stack spacing={1.5} direction={{xs: "column", md: "row"}}>
+						<Button
+							onClick={() => {
+								const payLoad = { search, ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined)) };
+								setLoadingLoader(true);
+								dispatch(
+									GetAdminDatesExportServices(payLoad, (res) => {
+										setLoadingLoader(false);
+										if (res?.data) {
+											const url = window.URL.createObjectURL(new Blob([res.data]));
+											const link = document.createElement("a");
+											link.href = url;
+											link.setAttribute("download", "dates_export.csv");
+											document.body.appendChild(link);
+											link.click();
+											link.remove();
+											sweetAlertSuccess("Export downloaded successfully");
+										} else {
+											sweetAlerts("error", "Failed to export data");
+										}
+									}),
+								);
+							}}
+							disabled={loadingLoader}
+							variant="outlined"
+							color="primary"
+							startIcon={<Iconify icon="solar:download-bold-duotone" />}
+							sx={{borderRadius: 2, fontWeight: 800}}
+						>
+							Export CSV
+						</Button>
+					</Stack>
+				</Box>
 			</Stack>
 
 			<Card sx={{borderRadius: 4, boxShadow: theme.shadows[2], overflow: "hidden"}}>
 				<Stack spacing={2}>
 					<Stack spacing={1} direction="row" sx={{m: 2, px: 2, pt: 2, pb: 1, justifyContent: "space-between"}}>
 						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={setSearch} placeholder="Search Date..." width={400} />
+						<Stack direction="row" spacing={1}>
+							{(() => {
+								const activeCount = Object.values(filters).filter((v) => v !== "").length;
+								return (
+									<Button variant={activeCount > 0 ? "contained" : "outlined"} startIcon={<Iconify icon="solar:filter-bold-duotone" />} onClick={() => setIsFilterOpen(true)}>
+										Filters {activeCount > 0 && `(${activeCount})`}
+									</Button>
+								);
+							})()}
+						</Stack>
 					</Stack>
 
 					<Box
@@ -250,6 +305,17 @@ const DateList = () => {
 					/>
 				</Stack>
 			</Card>
+
+			<DateFilter
+				open={isFilterOpen}
+				onClose={() => setIsFilterOpen(false)}
+				filters={filters}
+				setFilters={setFilters}
+				onApply={() => {
+					setPage(1);
+					setApiFlag(!apiFlag);
+				}}
+			/>
 		</Stack>
 	);
 };

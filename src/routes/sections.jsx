@@ -35,6 +35,16 @@ export const UserReportsList = lazy(() => import("../Apps/UserReports"));
 export const UserReportDetails = lazy(() => import("../Apps/UserReports/UserReportDetails"));
 export const PaymentList = lazy(() => import("../Apps/Payments"));
 export const Profile = lazy(() => import("../Apps/Profile"));
+export const VerificationList = lazy(() => import("../Apps/Verification"));
+export const VerificationDetails = lazy(() => import("../Apps/Verification/VerificationDetails"));
+export const ComplianceList = lazy(() => import("../Apps/Compliance"));
+export const ComplianceDetails = lazy(() => import("../Apps/Compliance/ComplianceDetails"));
+export const TasksList = lazy(() => import("../Apps/Tasks"));
+export const TaskDetails = lazy(() => import("../Apps/Tasks/TaskDetails"));
+export const AuditLogsList = lazy(() => import("../Apps/AuditLogs"));
+export const AuditLogDetails = lazy(() => import("../Apps/AuditLogs/AuditLogDetails"));
+export const NotesList = lazy(() => import("../Apps/Notes"));
+export const VenuesList = lazy(() => import("../Apps/Venues"));
 
 export default function Router() {
 	const location = useLocation();
@@ -63,6 +73,16 @@ export default function Router() {
 		{path: AdminRoutes?.UserReportDetails, element: <UserReportDetails />},
 		{path: AdminRoutes?.PaymentList, element: <PaymentList />},
 		{path: AdminRoutes?.Profile, element: <Profile />},
+		{path: AdminRoutes?.VerificationList, element: <VerificationList />},
+		{path: AdminRoutes?.VerificationDetails, element: <VerificationDetails />},
+		{path: AdminRoutes?.ComplianceList, element: <ComplianceList />},
+		{path: AdminRoutes?.ComplianceDetails, element: <ComplianceDetails />},
+		{path: AdminRoutes?.TasksList, element: <TasksList />},
+		{path: AdminRoutes?.TaskDetails, element: <TaskDetails />},
+		{path: AdminRoutes?.AuditLogsList, element: <AuditLogsList />},
+		{path: AdminRoutes?.AuditLogDetails, element: <AuditLogDetails />},
+		{path: AdminRoutes?.NotesList, element: <NotesList />},
+		{path: AdminRoutes?.VenuesList, element: <VenuesList />},
 	];
 
 	const routes = useRoutes([

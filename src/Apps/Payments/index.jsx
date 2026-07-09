@@ -17,7 +17,10 @@ import CustomPagination from "src/components/common/CustomPagination";
 import CustomSearchInput from "src/components/common/CustomSearchInput";
 import Iconify from "src/components/common/iconify";
 import CustomTooltip from "src/components/common/CustomTooltip";
-import { GetAdminPaymentsListServices } from "src/services/Payments.Services";
+import Button from "@mui/material/Button";
+import { GetAdminPaymentsListServices, GetAdminPaymentsExportServices } from "src/services/Payments.Services";
+import PaymentFilter from "./PaymentFilter";
+import { sweetAlerts, sweetAlertSuccess } from "src/utils/sweet-alerts";
 
 const PaymentList = () => {
 	const theme = useTheme();
@@ -38,6 +41,14 @@ const PaymentList = () => {
 	const [apiFlag, setApiFlag] = useState(false);
 	const [loadingLoader, setLoadingLoader] = useState(false);
 
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [filters, setFilters] = useState({
+		user_id: searchParams.get("user_id") || "",
+		status: searchParams.get("status") || "",
+		provider: searchParams.get("provider") || "",
+		payment_intent_id: searchParams.get("payment_intent_id") || "",
+	});
+
 	useEffect(() => {
 		function apiCallAction() {
 			setLoadingLoader(true);
@@ -48,6 +59,7 @@ const PaymentList = () => {
 				field,
 				order,
 				search,
+				...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined)),
 			};
 
 			dispatch(
@@ -62,7 +74,7 @@ const PaymentList = () => {
 			);
 		}
 		apiCallAction();
-	}, [dispatch, apiFlag, search, page, pageSize, field, order]);
+	}, [dispatch, apiFlag, search, page, pageSize, field, order, filters]);
 
 	useEffect(() => {
 		setSearchParams({
@@ -71,8 +83,12 @@ const PaymentList = () => {
 			...(search && {search}),
 			...(field && {field}),
 			...(order && {order}),
+			...(filters.user_id !== "" && {user_id: filters.user_id}),
+			...(filters.status !== "" && {status: filters.status}),
+			...(filters.provider !== "" && {provider: filters.provider}),
+			...(filters.payment_intent_id !== "" && {payment_intent_id: filters.payment_intent_id}),
 		});
-	}, [setSearchParams, page, pageSize, search, field, order]);
+	}, [setSearchParams, page, pageSize, search, field, order, filters]);
 
 	const columns = [
 		{
@@ -224,12 +240,57 @@ const PaymentList = () => {
 						View and manage all user transactions, subscriptions, and one-time payments.
 					</Typography>
 				</Box>
+
+				<Box>
+					<Stack spacing={1.5} direction={{xs: "column", md: "row"}}>
+						<Button
+							onClick={() => {
+								const payLoad = { search, ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined)) };
+								setLoadingLoader(true);
+								dispatch(
+									GetAdminPaymentsExportServices(payLoad, (res) => {
+										setLoadingLoader(false);
+										if (res?.data) {
+											const url = window.URL.createObjectURL(new Blob([res.data]));
+											const link = document.createElement("a");
+											link.href = url;
+											link.setAttribute("download", "payments_export.csv");
+											document.body.appendChild(link);
+											link.click();
+											link.remove();
+											sweetAlertSuccess("Export downloaded successfully");
+										} else {
+											sweetAlerts("error", "Failed to export data");
+										}
+									}),
+								);
+							}}
+							disabled={loadingLoader}
+							variant="outlined"
+							color="primary"
+							startIcon={<Iconify icon="solar:download-bold-duotone" />}
+							sx={{borderRadius: 2, fontWeight: 800}}
+						>
+							Export CSV
+						</Button>
+					</Stack>
+				</Box>
 			</Stack>
 
 			<Card sx={{borderRadius: 4, boxShadow: theme.shadows[2], overflow: "hidden"}}>
 				<Stack spacing={2}>
 					<Stack spacing={1} direction="row" sx={{m: 2, px: 2, pt: 2, pb: 1, justifyContent: "space-between"}}>
 						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={setSearch} placeholder="Search Transactions..." width={400} />
+						<Stack direction="row" spacing={1}>
+							{(() => {
+								const activeCount = Object.values(filters).filter((v) => v !== "").length;
+								return (
+									<Button variant={activeCount > 0 ? "contained" : "outlined"} startIcon={<Iconify icon="solar:filter-bold-duotone" />} onClick={() => setIsFilterOpen(true)}>
+										Filters {activeCount > 0 && `(${activeCount})`}
+									</Button>
+								);
+							})()}
+						</Stack>
 					</Stack>
 
 					<Box
@@ -290,6 +351,17 @@ const PaymentList = () => {
 					/>
 				</Stack>
 			</Card>
+
+			<PaymentFilter
+				open={isFilterOpen}
+				onClose={() => setIsFilterOpen(false)}
+				filters={filters}
+				setFilters={setFilters}
+				onApply={() => {
+					setPage(1);
+					setApiFlag(!apiFlag);
+				}}
+			/>
 		</Stack>
 	);
 };

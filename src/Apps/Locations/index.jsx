@@ -20,7 +20,7 @@ import {CustomActionIconButton} from "src/components/common/CustomActionIconButt
 import {sweetAlertQuestion, sweetAlerts, sweetAlertSuccess} from "src/utils/sweet-alerts";
 
 import LocationModel from "./LocationModel";
-import {DeleteAdminLocationServices, GetAdminLocationsListServices} from "src/services/Locations.Services";
+import {DeleteAdminLocationServices, GetAdminLocationsListServices, GetAdminLocationsExportServices} from "src/services/Locations.Services";
 import {fDateTime, getErrorMessage} from "src/utils/utils";
 
 export default function Tickets() {
@@ -86,6 +86,30 @@ export default function Tickets() {
 			}
 			setApiFlag(!apiFlag);
 		}, 1000);
+	};
+
+	const handleExport = () => {
+		const payLoad = {
+			search,
+		};
+		setLoadingLoader(true);
+		dispatch(
+			GetAdminLocationsExportServices(payLoad, (res) => {
+				setLoadingLoader(false);
+				if (res?.data) {
+					const url = window.URL.createObjectURL(new Blob([res.data]));
+					const link = document.createElement("a");
+					link.href = url;
+					link.setAttribute("download", "locations_export.csv");
+					document.body.appendChild(link);
+					link.click();
+					link.remove();
+					sweetAlertSuccess("Export downloaded successfully");
+				} else {
+					sweetAlerts("error", "Failed to export data");
+				}
+			}),
+		);
 	};
 
 	useEffect(() => {
@@ -211,7 +235,17 @@ export default function Tickets() {
 				</Box>
 
 				<Box>
-					<Stack spacing={1.5} direction="row">
+					<Stack spacing={1.5} direction={{xs: "column", md: "row"}}>
+						<Button
+							onClick={handleExport}
+							disabled={loadingLoader}
+							variant="outlined"
+							color="primary"
+							startIcon={<Iconify icon="solar:download-bold-duotone" />}
+							sx={{borderRadius: 2, fontWeight: 800}}
+						>
+							Export CSV
+						</Button>
 						<Button
 							color="primary"
 							variant="contained"

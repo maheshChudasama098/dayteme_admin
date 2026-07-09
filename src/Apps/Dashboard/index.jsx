@@ -24,9 +24,17 @@ const Dashboard = () => {
 
 	const summaryStats = [
 		{title: "Total Users", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
-		{title: "Active Matches", value: dashboardData?.metrics?.active_matches || 0, icon: "solar:heart-bold-duotone", color: "error"},
-		{title: "Premium Subscribers", value: dashboardData?.metrics?.premium_subscribers || 0, icon: "solar:crown-star-bold-duotone", color: "warning"},
-		{title: "Dates Scheduled", value: dashboardData?.metrics?.dates_scheduled || 0, icon: "solar:calendar-date-bold-duotone", color: "success"},
+		{title: "Verified Users", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
+		{title: "Pending Verification", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
+		{title: "Male/Female Ratio", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
+		{title: "Daily Active Users", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
+		{title: "Revenue Today", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
+		{title: "Revenue Month", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
+		{title: "Open Safety Reports", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
+		// {title: "Upcoming Events", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
+		// {title: "Active Matches", value: dashboardData?.metrics?.active_matches || 0, icon: "solar:heart-bold-duotone", color: "error"},
+		// {title: "Premium Subscribers", value: dashboardData?.metrics?.premium_subscribers || 0, icon: "solar:crown-star-bold-duotone", color: "warning"},
+		// {title: "Dates Scheduled", value: dashboardData?.metrics?.dates_scheduled || 0, icon: "solar:calendar-date-bold-duotone", color: "success"},
 	];
 
 	const chartCategories = dashboardData?.platform_growth?.map(item => item.month) || ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];

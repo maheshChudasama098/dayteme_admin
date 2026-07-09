@@ -1,4 +1,4 @@
-export const DevelopMood = false;
+export const DevelopMood = true;
 
 export const apiURL = DevelopMood ? "http://192.168.0.184/Projects/Laravel/dayteme/public/api/" : "https://laraveltz.thedevelopment.in/jk/dayteme/public/api";
 

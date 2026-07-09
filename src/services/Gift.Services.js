@@ -15,6 +15,21 @@ export function GetAdminGiftsListServices(params, cb) {
 	};
 }
 
+export function GetAdminGiftsExportServices(params, cb) {
+	return (dispatch) => {
+		dispatch({type: "FETCH_START"});
+		jwtAuthAxios
+			.get("/v1/admin/gifts/export", {params, responseType: "blob"})
+			.then((res) => {
+				dispatch({type: "FETCH_SUCCESS"});
+				if (cb) cb(res);
+			})
+			.catch((error) => {
+				if (cb) cb(error?.response || error);
+			});
+	};
+}
+
 export function PostAdminGiftServices(data, cb) {
 	return (dispatch) => {
 		dispatch({type: "FETCH_START"});

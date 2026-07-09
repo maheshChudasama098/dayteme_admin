@@ -112,15 +112,19 @@ export function getErrorMessage(res) {
 
 // ----------------------------------------------------------------------
 
+export function fTruncateWords(text, maxChars = 30) {
+	if (text?.length <= maxChars) return text;
+	return (text?.substring(0, maxChars) ?? "") + "...";
+}
+
 export function fDateTime(date) {
 	return date ? moment(date).format("DD/MM/YYYY - HH:mm A") : "N/A";
 }
 
 export function fDate(date) {
-	return date ? moment(date).format("MMM DD") : "N/A";
+	return date ? moment(date).format("DD MMM YYYY") : "N/A";
 }
 
-export function fTruncateWords(text, maxChars = 30) {
-	if (text?.length <= maxChars) return text;
-	return (text?.substring(0, maxChars) ?? "") + "...";
+export function fAge(date) {
+	return date ? moment().diff(moment(date), "years") : "0";
 }

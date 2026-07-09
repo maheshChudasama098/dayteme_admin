@@ -19,10 +19,11 @@ import CustomPagination from "src/components/common/CustomPagination";
 import CustomSearchInput from "src/components/common/CustomSearchInput";
 import {CustomActionIconButton} from "src/components/common/CustomActionIconButton";
 
-import {sweetAlertQuestion, sweetAlertSuccess} from "src/utils/sweet-alerts";
-import {GetAdminGiftsListServices, DeleteAdminGiftServices} from "src/services/Gift.Services";
+import {sweetAlertQuestion, sweetAlertSuccess, sweetAlerts} from "src/utils/sweet-alerts";
+import {GetAdminGiftsListServices, DeleteAdminGiftServices, GetAdminGiftsExportServices} from "src/services/Gift.Services";
 
 import GiftModel from "./GiftModel";
+import GiftFilter from "./GiftFilter";
 import {AdminRoutes} from "src/routes/routes";
 import {Avatar} from "@mui/material";
 
@@ -49,6 +50,11 @@ export default function Gifts() {
 
 	const [selectedGift, setSelectedGift] = useState({});
 
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [filters, setFilters] = useState({
+		type: searchParams.get("type") || "",
+	});
+
 	useEffect(() => {
 		function apiCallAction() {
 			setLoadingLoader(true);
@@ -59,6 +65,7 @@ export default function Gifts() {
 				field,
 				order,
 				search,
+				...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined)),
 			};
 
 			dispatch(
@@ -74,7 +81,7 @@ export default function Gifts() {
 			);
 		}
 		apiCallAction();
-	}, [dispatch, apiFlag, search, page, pageSize, field, order]);
+	}, [dispatch, apiFlag, search, page, pageSize, field, order, filters]);
 
 	useEffect(() => {
 		setSearchParams({
@@ -83,8 +90,9 @@ export default function Gifts() {
 			...(search && {search}),
 			...(field && {field}),
 			...(order && {order}),
+			...(filters.type !== "" && {type: filters.type}),
 		});
-	}, [setSearchParams, page, pageSize, search, field, order]);
+	}, [setSearchParams, page, pageSize, search, field, order, filters]);
 
 	const handleSearch = (value) => {
 		setSearch(value);
@@ -121,6 +129,31 @@ export default function Gifts() {
 			}
 			setApiFlag(!apiFlag);
 		}, 1000);
+	};
+
+	const handleExport = () => {
+		const payLoad = {
+			search,
+			...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined)),
+		};
+		setLoadingLoader(true);
+		dispatch(
+			GetAdminGiftsExportServices(payLoad, (res) => {
+				setLoadingLoader(false);
+				if (res?.data) {
+					const url = window.URL.createObjectURL(new Blob([res.data]));
+					const link = document.createElement("a");
+					link.href = url;
+					link.setAttribute("download", "gifts_export.csv");
+					document.body.appendChild(link);
+					link.click();
+					link.remove();
+					sweetAlertSuccess("Export downloaded successfully");
+				} else {
+					sweetAlerts("error", "Failed to export data");
+				}
+			}),
+		);
 	};
 
 	const columns = [
@@ -218,7 +251,17 @@ export default function Gifts() {
 				</Box>
 
 				<Box>
-					<Stack spacing={1.5} direction="row">
+					<Stack spacing={1.5} direction={{xs: "column", md: "row"}}>
+						<Button
+							onClick={handleExport}
+							disabled={loadingLoader}
+							variant="outlined"
+							color="primary"
+							startIcon={<Iconify icon="solar:download-bold-duotone" />}
+							sx={{borderRadius: 2, fontWeight: 800}}
+						>
+							Export CSV
+						</Button>
 						<Button
 							color="primary"
 							variant="contained"
@@ -238,6 +281,16 @@ export default function Gifts() {
 				<Stack spacing={2}>
 					<Stack spacing={1} direction="row" sx={{m: 2, px: 2, pt: 2, pb: 1, justifyContent: "space-between"}}>
 						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={handleSearch} placeholder="Search Gift..." width={400} />
+						<Stack direction="row" spacing={1}>
+							{(() => {
+								const activeCount = Object.values(filters).filter((v) => v !== "").length;
+								return (
+									<Button variant={activeCount > 0 ? "contained" : "outlined"} startIcon={<Iconify icon="solar:filter-bold-duotone" />} onClick={() => setIsFilterOpen(true)}>
+										Filters {activeCount > 0 && `(${activeCount})`}
+									</Button>
+								);
+							})()}
+						</Stack>
 					</Stack>
 
 					<Box
@@ -321,6 +374,17 @@ export default function Gifts() {
 					data={selectedGift}
 				/>
 			)}
+
+			<GiftFilter
+				open={isFilterOpen}
+				onClose={() => setIsFilterOpen(false)}
+				filters={filters}
+				setFilters={setFilters}
+				onApply={() => {
+					setPage(1);
+					setApiFlag(!apiFlag);
+				}}
+			/>
 		</Stack>
 	);
 }

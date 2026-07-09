@@ -5,22 +5,37 @@ export const adminNavConfig = [
 	{
 		title: "Dashboard",
 		path: AdminRoutes?.Dashboard,
-		icon: "ic:round-dashboard",
+		icon: "duo-icons:dashboard",
 	},
 	{
 		title: "Users",
 		path: AdminRoutes?.UsersList,
-		icon: "solar:users-group-rounded-bold",
+		icon: "solar:users-group-rounded-bold-duotone",
 	},
 	{
-		title: "Location",
-		path: AdminRoutes?.LocationList,
-		icon: "fluent:location-48-filled",
+		title: "Tasks",
+		path: AdminRoutes?.TasksList,
+		icon: "solar:checklist-minimalistic-bold-duotone",
 	},
 	{
-		title: "Questions",
+		title: "Verification",
+		path: AdminRoutes?.VerificationList,
+		icon: "solar:shield-check-bold-duotone",
+	},
+	{
+		title: "Safety Center",
+		path: AdminRoutes?.UserReportsList,
+		icon: "solar:shield-warning-bold-duotone",
+	},
+	{
+		title: "Question",
 		path: AdminRoutes?.QuestionList,
-		icon: "mdi:frequently-asked-questions",
+		icon: "solar:document-text-bold-duotone",
+	},
+	{
+		title: "Compliance",
+		path: AdminRoutes?.ComplianceList,
+		icon: "solar:document-text-bold-duotone",
 	},
 	{
 		title: "Dates",
@@ -33,18 +48,33 @@ export const adminNavConfig = [
 		icon: "mdi:star-circle",
 	},
 	{
-		title: "Gifts",
-		path: AdminRoutes?.GiftList,
-		icon: "mdi:gift",
+		title: "Location",
+		path: AdminRoutes?.LocationList,
+		icon: "fluent:location-48-filled",
 	},
 	{
-		title: "User Reports",
-		path: AdminRoutes?.UserReportsList,
-		icon: "ic:round-report-problem",
+		title: "Gifts",
+		path: AdminRoutes?.GiftList,
+		icon: "fluent:location-48-filled",
 	},
 	{
 		title: "Payments",
 		path: AdminRoutes?.PaymentList,
 		icon: "mdi:credit-card-outline",
+	},
+	{
+		title: "Audit Logs",
+		path: AdminRoutes?.AuditLogsList,
+		icon: "solar:history-bold-duotone",
+	},
+	{
+		title: "Notes",
+		path: AdminRoutes?.NotesList,
+		icon: "solar:notes-bold-duotone",
+	},
+	{
+		title: "Venues",
+		path: AdminRoutes?.VenuesList,
+		icon: "solar:buildings-2-bold-duotone",
 	},
 ];

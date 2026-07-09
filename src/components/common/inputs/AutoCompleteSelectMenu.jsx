@@ -22,7 +22,7 @@ export const AutoCompleteSelectMenu = ({
   ...props
 }) => {
   const handleChange = (e, value) => {
-    const selectedId = value?.[valueKey] || "";
+    const selectedId = value?.[valueKey] !== undefined ? value[valueKey] : "";
     formik.setFieldValue(field, selectedId);
 
     if (typeof callBackAction === "function") {

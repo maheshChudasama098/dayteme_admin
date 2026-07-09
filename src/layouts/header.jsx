@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import {useSelector} from "react-redux";
+import React, { useState, useEffect } from "react";
 
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
@@ -9,8 +10,11 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 
 import {useResponsive} from "src/hooks/use-responsive";
+import Badge from "@mui/material/Badge";
+import Tooltip from "@mui/material/Tooltip";
 
 import Iconify from "src/components/common/iconify";
+import GlobalSearch from "src/components/global-search";
 
 import {NAV, HEADER} from "./config-layout";
 import AccountPopover from "./common/account-popover";
@@ -23,6 +27,19 @@ export default function Header({onOpenNav, openNav}) {
 
 	const {pageHerder} = useSelector((state) => state?.common);
 
+	const [searchOpen, setSearchOpen] = useState(false);
+
+	useEffect(() => {
+		const handleKeyDown = (event) => {
+			if ((event.ctrlKey || event.metaKey) && event.key === "k") {
+				event.preventDefault();
+				setSearchOpen(true);
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, []);
+
 	const renderContent = (
 		<Box
 			sx={{
@@ -31,8 +48,8 @@ export default function Header({onOpenNav, openNav}) {
 				justifyContent: "space-between",
 				width: "100%",
 				transition: "width 300ms ease-in-out",
-				height: "100vh", // or parent height
-				px: 2,
+				height: "100%",
+				px: 3,
 			}}>
 			<Stack direction="row" alignItems="center" spacing={1}>
 				<IconButton onClick={onOpenNav} sx={{mr: 1}}>
@@ -42,9 +59,24 @@ export default function Header({onOpenNav, openNav}) {
 					{pageHerder || ""}
 				</Typography>
 			</Stack>
+			
 			<Stack direction="row" alignItems="center" spacing={1.5}>
+				<Tooltip title="Global Search (Ctrl+K)">
+					<IconButton onClick={() => setSearchOpen(true)}>
+						<Iconify icon="solar:magnifer-linear" />
+					</IconButton>
+				</Tooltip>
+				<Tooltip title="Notifications">
+					<IconButton>
+						<Badge badgeContent={4} color="error">
+							<Iconify icon="solar:bell-linear" />
+						</Badge>
+					</IconButton>
+				</Tooltip>
 				<AccountPopover />
 			</Stack>
+
+			<GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
 		</Box>
 	);
 

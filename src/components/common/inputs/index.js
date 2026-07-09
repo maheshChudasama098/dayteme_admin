@@ -3,7 +3,7 @@ export {ImagePicker} from "./ImagePicker";
 export {CheckboxForm} from "./CheckboxForm";
 export {OTPFieldForm} from "./OTPFieldForm";
 export {TextFieldForm} from "./TextFieldForm";
-// export { DatePickerCustom } from './DatePicker';
+export { DatePickerCustom } from './DatePicker';
 // export { FileUploadField } from './FileUploadField';
 // export { DateRangePicker } from './DateRangePicker';
 // export { MultiImagePicker } from './MultiImagePicker';
