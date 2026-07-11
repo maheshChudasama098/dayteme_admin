@@ -18,9 +18,12 @@ import CustomSearchInput from "src/components/common/CustomSearchInput";
 import Iconify from "src/components/common/iconify";
 import Button from "@mui/material/Button";
 import {AdminRoutes} from "src/routes/routes";
-import {GetAdminReportsListServices, GetAdminReportsExportServices} from "src/services/Reports.Services";
+import {GetAdminReportsListServices, GetAdminReportsExportServices, PostAdminReportStatusUpdateServices} from "src/services/Reports.Services";
 import ReportFilter from "./ReportFilter";
-import { sweetAlerts, sweetAlertSuccess } from "src/utils/sweet-alerts";
+import {sweetAlerts, sweetAlertSuccess, sweetAlertQuestion} from "src/utils/sweet-alerts";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import {fDate} from "src/utils/utils";
 
 const UserReportsList = () => {
 	const theme = useTheme();
@@ -88,6 +91,23 @@ const UserReportsList = () => {
 		});
 	}, [setSearchParams, page, pageSize, search, field, order, filters]);
 
+	const handleStatusChange = (reportId, newStatus) => {
+		sweetAlertQuestion(`Are you sure you want to change report status to ${newStatus}?`, "Change Status?").then((result) => {
+			if (result) {
+				dispatch(
+					PostAdminReportStatusUpdateServices(reportId, {status: newStatus}, (res) => {
+						if (res?.success) {
+							setApiFlag(!apiFlag);
+							sweetAlertSuccess("Report status updated successfully");
+						} else {
+							sweetAlerts("error", res?.message || "Failed to update status");
+						}
+					}),
+				);
+			}
+		});
+	};
+
 	const columns = [
 		{
 			title: "Reporter",
@@ -151,9 +171,42 @@ const UserReportsList = () => {
 			width: 120,
 			render: (created_at) => (
 				<Typography variant="body2" sx={{color: "text.secondary"}}>
-					{created_at ? new Date(created_at).toLocaleDateString() : ""}
+					{fDate(created_at)}
 				</Typography>
 			),
+		},
+		{
+			title: "Status",
+			key: "status",
+			width: 140,
+			render: (_, record) => {
+				const status = record?.status?.toLowerCase() || "pending";
+				let color = "warning.main";
+				if (status === "resolved") color = "success.main";
+				if (status === "dismissed") color = "text.secondary";
+
+				return (
+					<Select
+						size="small"
+						value={status}
+						onChange={(e) => handleStatusChange(record.id, e.target.value)}
+						onClick={(e) => e.stopPropagation()}
+						sx={{
+							height: 30,
+							fontSize: "0.75rem",
+							fontWeight: 800,
+							color: color,
+							"& .MuiOutlinedInput-notchedOutline": {borderColor: color},
+							"&:hover .MuiOutlinedInput-notchedOutline": {borderColor: color},
+							"&.Mui-focused .MuiOutlinedInput-notchedOutline": {borderColor: color},
+							"& .MuiSelect-icon": {color: color},
+						}}>
+						<MenuItem value="pending">Pending</MenuItem>
+						<MenuItem value="resolved">Resolved</MenuItem>
+						<MenuItem value="dismissed">Dismissed</MenuItem>
+					</Select>
+				);
+			},
 		},
 		{
 			title: "Action",
@@ -189,7 +242,7 @@ const UserReportsList = () => {
 			<Stack spacing={2} direction="row" sx={{justifyContent: "space-between", alignItems: "flex-start"}}>
 				<Box>
 					<Typography variant="h3" fontWeight={800} color="text.primary" gutterBottom>
-						User Reports
+						Safety Queue
 					</Typography>
 					<Typography variant="body1" sx={{color: "text.secondary"}}>
 						Review and manage moderation reports submitted by users against other users.
@@ -200,7 +253,7 @@ const UserReportsList = () => {
 					<Stack spacing={1.5} direction={{xs: "column", md: "row"}}>
 						<Button
 							onClick={() => {
-								const payLoad = { search, ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined)) };
+								const payLoad = {search, ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined))};
 								setLoadingLoader(true);
 								dispatch(
 									GetAdminReportsExportServices(payLoad, (res) => {
@@ -224,8 +277,7 @@ const UserReportsList = () => {
 							variant="outlined"
 							color="primary"
 							startIcon={<Iconify icon="solar:download-bold-duotone" />}
-							sx={{borderRadius: 2, fontWeight: 800}}
-						>
+							sx={{borderRadius: 2, fontWeight: 800}}>
 							Export CSV
 						</Button>
 					</Stack>

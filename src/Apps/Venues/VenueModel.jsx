@@ -1,22 +1,23 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useFormik } from "formik";
+import React, {useState} from "react";
+import {useDispatch} from "react-redux";
+import {useFormik} from "formik";
 import * as Yup from "yup";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import { CustomDialogModel } from "src/components/common/CustomDialogModel";
-import { TextFieldForm, AutoCompleteSelectMenu } from "src/components/common/inputs";
-import { CreateAdminVenueServices, UpdateAdminVenueServices } from "src/services/Venues.Services";
-import { sweetAlerts, sweetAlertSuccess } from "src/utils/sweet-alerts";
+import {CustomDialogModel} from "src/components/common/CustomDialogModel";
+import {TextFieldForm, AutoCompleteSelectMenu} from "src/components/common/inputs";
+import {CreateAdminVenueServices, UpdateAdminVenueServices} from "src/services/Venues.Services";
+import {sweetAlerts, sweetAlertSuccess} from "src/utils/sweet-alerts";
+import {getErrorMessage} from "src/utils/utils";
 
 const BOOLEAN_OPTIONS = [
-	{ id: 1, name: "Yes" },
-	{ id: 0, name: "No" },
+	{id: 1, name: "Yes"},
+	{id: 0, name: "No"},
 ];
 
-export default function VenueModel({ open, onClose, onSuccess, data }) {
+export default function VenueModel({open, onClose, onSuccess, data}) {
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const isEdit = Boolean(data?.id);
@@ -72,7 +73,7 @@ export default function VenueModel({ open, onClose, onSuccess, data }) {
 						} else {
 							sweetAlerts("error", res?.message || "Failed to update venue");
 						}
-					})
+					}),
 				);
 			} else {
 				dispatch(
@@ -83,20 +84,21 @@ export default function VenueModel({ open, onClose, onSuccess, data }) {
 							if (onSuccess) onSuccess();
 							onClose();
 						} else {
-							sweetAlerts("error", res?.message || "Failed to create venue");
+							const error = getErrorMessage(res);
+							sweetAlerts("error", error);
 						}
-					})
+					}),
 				);
 			}
 		},
 	});
 
 	return (
-		<CustomDialogModel 
-			open={open} 
-			handleClose={onClose} 
-			title={isEdit ? "Edit Venue" : "Create Venue"} 
-			minWidth={800} 
+		<CustomDialogModel
+			open={open}
+			handleClose={onClose}
+			title={isEdit ? "Edit Venue" : "Create Venue"}
+			minWidth={800}
 			maxWidth={800}
 			child={
 				<form onSubmit={formik.handleSubmit} noValidate>
@@ -108,11 +110,11 @@ export default function VenueModel({ open, onClose, onSuccess, data }) {
 							<Grid size={{xs: 12, md: 6}}>
 								<TextFieldForm formik={formik} label="Category" field="category" placeholder="Enter Category" required />
 							</Grid>
-							
+
 							<Grid size={{xs: 12}}>
 								<TextFieldForm formik={formik} label="Address" field="address" placeholder="Enter Full Address" required />
 							</Grid>
-							
+
 							<Grid size={{xs: 12, md: 6}}>
 								<TextFieldForm formik={formik} label="Latitude" field="latitude" placeholder="e.g. 18.0179" type="number" required />
 							</Grid>
@@ -121,30 +123,54 @@ export default function VenueModel({ open, onClose, onSuccess, data }) {
 							</Grid>
 
 							<Grid size={{xs: 12, md: 6}}>
-								<TextFieldForm formik={formik} label="Start Time (H:i:s)" field="start_time" placeholder="e.g. 09:00:00" required />
+								<TextFieldForm
+									formik={formik}
+									label="Start Time (H:i:s)"
+									type="time"
+									slotProps={{
+										htmlInput: {
+											step: 1,
+										},
+									}}
+									field="start_time"
+									placeholder="e.g. 09:00:00"
+									required
+								/>
 							</Grid>
 							<Grid size={{xs: 12, md: 6}}>
-								<TextFieldForm formik={formik} label="End Time (H:i:s)" field="end_time" placeholder="e.g. 22:00:00" required />
+								<TextFieldForm
+									formik={formik}
+									label="End Time (H:i:s)"
+									type="time"
+									slotProps={{
+										htmlInput: {
+											step: 1,
+										},
+									}}
+									field="end_time"
+									placeholder="e.g. 22:00:00"
+									required
+								/>
 							</Grid>
-							
+
 							<Grid size={{xs: 12}}>
-								<TextFieldForm formik={formik} label="Image URL" field="image_url" placeholder="Enter Image URL" />
+								<TextFieldForm formik={formik} label="Image URL" field="image_url" placeholder="Enter Image URL" required={false} />
 							</Grid>
 
 							<Grid size={{xs: 12, md: 4}}>
-								<AutoCompleteSelectMenu formik={formik} label="Parking" field="parking" placeholder="Select" menuList={BOOLEAN_OPTIONS} valueKey="id" labelKey="name" />
+								<AutoCompleteSelectMenu formik={formik} label="Parking" field="parking" required={false} placeholder="Select" menuList={BOOLEAN_OPTIONS} valueKey="id" labelKey="name" />
 							</Grid>
 							<Grid size={{xs: 12, md: 4}}>
-								<AutoCompleteSelectMenu formik={formik} label="Security" field="security" placeholder="Select" menuList={BOOLEAN_OPTIONS} valueKey="id" labelKey="name" />
+								<AutoCompleteSelectMenu formik={formik} label="Security" field="security" required={false} placeholder="Select" menuList={BOOLEAN_OPTIONS} valueKey="id" labelKey="name" />
 							</Grid>
 							<Grid size={{xs: 12, md: 4}}>
-								<AutoCompleteSelectMenu formik={formik} label="Is Paid" field="is_paid" placeholder="Select" menuList={BOOLEAN_OPTIONS} valueKey="id" labelKey="name" />
+								<AutoCompleteSelectMenu formik={formik} label="Is Paid" field="is_paid" required={false} placeholder="Select" menuList={BOOLEAN_OPTIONS} valueKey="id" labelKey="name" />
 							</Grid>
 						</Grid>
 
-						<Box sx={{ flexGrow: 1 }} />
+						<Box sx={{flexGrow: 1}} />
 
-						<Stack direction="row" spacing={2} sx={{ pt: 2, mt: 4, borderTop: '1px dashed', borderColor: 'divider', justifyContent: 'flex-end' }}>
+						<Stack direction="row" spacing={2} sx={{pt: 2, mt: 4, borderTop: "1px dashed", borderColor: "divider", justifyContent: "flex-end"}}>
 							<Button variant="outlined" color="inherit" onClick={onClose}>
 								Cancel
 							</Button>

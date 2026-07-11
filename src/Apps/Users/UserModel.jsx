@@ -13,6 +13,7 @@ import {Form, Formik} from "formik";
 import {TextFieldForm, AutoCompleteSelectMenu, CheckboxForm} from "src/components/common/inputs";
 import {CustomDialogModel} from "src/components/common/CustomDialogModel";
 import {GetLocationsListServices} from "src/services/Locations.Services";
+import {GetAdminRolesServices} from "src/services/Roles.Services";
 import {PostAdminUserAddServices, PutAdminUserServices} from "src/services/Users.Services";
 import {sweetAlertSuccess} from "src/utils/sweet-alerts";
 import {getErrorMessage} from "src/utils/utils";
@@ -22,6 +23,7 @@ const UserModel = ({open, handleClose, cdSuccess, data}) => {
 
 	const [errMsg, setErrMsg] = useState(null);
 	const [location, setLocation] = useState([]);
+	const [roles, setRoles] = useState([]);
 	const [modelOpenFlag, setModelOpenFlag] = useState(false);
 	const [loadingLoader, setLoadingLoader] = useState(false);
 
@@ -42,15 +44,29 @@ const UserModel = ({open, handleClose, cdSuccess, data}) => {
 					setLocation(res?.data?.location);
 				}),
 			);
+			dispatch(
+				GetAdminRolesServices((res) => {
+					if (res?.success) {
+						setRoles(res?.data?.roles || res?.data || []);
+					}
+				})
+			);
 		};
 		handleOpen();
 	}, [dispatch]);
 
 	const HandleSubmit = (values) => {
 		setLoadingLoader(true);
+		const payload = {
+			...values,
+			is_admin: values.is_admin ? 1 : 0,
+			role_ids: values.is_admin && values.role_id ? [values.role_id] : [],
+		};
+		delete payload.role_id;
+
 		if (data?.id) {
 			dispatch(
-				PutAdminUserServices(data?.id, values, (res) => {
+				PutAdminUserServices(data?.id, payload, (res) => {
 					setLoadingLoader(false);
 					if (res?.success) {
 						setModelOpenFlag(false);
@@ -64,7 +80,7 @@ const UserModel = ({open, handleClose, cdSuccess, data}) => {
 			);
 		} else {
 			dispatch(
-				PostAdminUserAddServices(values, (res) => {
+				PostAdminUserAddServices(payload, (res) => {
 					setLoadingLoader(false);
 					if (res?.success) {
 						setModelOpenFlag(false);
@@ -96,7 +112,8 @@ const UserModel = ({open, handleClose, cdSuccess, data}) => {
 							email: data?.email || "",
 							phone_number: data?.phone_number || "",
 							location: data?.location?.id || "",
-							is_admin: data?.is_admin || false,
+							is_admin: data?.is_admin === 1 || data?.is_admin === true || false,
+							role_id: data?.roles?.[0]?.id || "",
 						}}
 						validationSchema={Yup.object().shape({
 							name: Yup.string().trim().required("Name is required"),
@@ -104,6 +121,11 @@ const UserModel = ({open, handleClose, cdSuccess, data}) => {
 							phone_number: Yup.string().trim().required("Phone is required"),
 							location: Yup.string().trim().required("Location is required"),
 							is_admin: Yup.boolean(),
+							role_id: Yup.number().when("is_admin", {
+								is: true,
+								then: (schema) => schema.required("Role is required for admin users"),
+								otherwise: (schema) => schema.notRequired(),
+							}),
 						})}
 						onSubmit={HandleSubmit}>
 						{(props) => (
@@ -114,6 +136,11 @@ const UserModel = ({open, handleClose, cdSuccess, data}) => {
 										<Grid size={{xs: 12, md: 12}}>
 											<CheckboxForm formik={props} label="Is Admin" field="is_admin" />
 										</Grid>
+										{props.values.is_admin && (
+											<Grid size={{xs: 12, md: 12}}>
+												<AutoCompleteSelectMenu formik={props} label="Role" field="role_id" placeholder="Select user role" menuList={roles} valueKey="id" labelKey="name" />
+											</Grid>
+										)}
 										<Grid size={{xs: 12, md: 12}}>
 											<TextFieldForm formik={props} label="Name" field="name" placeholder="Enter user's name" />
 										</Grid>

@@ -21,11 +21,13 @@ import CustomSearchInput from "src/components/common/CustomSearchInput";
 
 import UserModel from "./UserModel";
 import UserFilter from "./UserFilter";
-import {DeleteAdminUserServices, GetAdminUsersListServices, GetAdminUsersExportServices} from "src/services/Users.Services";
+import {DeleteAdminUserServices, GetAdminUsersListServices, GetAdminUsersExportServices, PostAdminUserStatusServices, GetAdminUserStatusesServices} from "src/services/Users.Services";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 import {CustomActionIconButton} from "src/components/common/CustomActionIconButton";
 import {sweetAlertQuestion, sweetAlerts, sweetAlertSuccess} from "src/utils/sweet-alerts";
-import {fAge, getErrorMessage} from "src/utils/utils";
+import {fAge, fDate, fDuration, getErrorMessage} from "src/utils/utils";
 
 const Index = () => {
 	const theme = useTheme();
@@ -42,6 +44,7 @@ const Index = () => {
 	const [order, setOrder] = useState(searchParams.get("order") || null);
 	const [search, setSearch] = useState(searchParams.get("search") || "");
 
+	const [statuses, setStatuses] = useState([]);
 	const [list, setList] = useState([]);
 	const [apiFlag, setApiFlag] = useState(false);
 
@@ -56,6 +59,19 @@ const Index = () => {
 		location_id: searchParams.get("location_id") || "",
 		is_paused: searchParams.get("is_paused") || "",
 	});
+
+	useEffect(() => {
+		function apiCallAction() {
+			dispatch(
+				GetAdminUserStatusesServices((res) => {
+					if (res?.success) {
+						setStatuses(res?.data?.statuses);
+					}
+				}),
+			);
+		}
+		apiCallAction();
+	}, [dispatch]);
 
 	useEffect(() => {
 		function apiCallAction() {
@@ -78,13 +94,13 @@ const Index = () => {
 						// mapping dummy data for new requirements just in case API doesn't have it yet
 						const enrichedData = res?.data?.users?.map((u) => ({
 							...u,
-							reliability_score: u.reliability_score || Math.floor(Math.random() * 40) + 60,
-							completed_dates: u.completed_dates || Math.floor(Math.random() * 20),
-							no_show_count: u.no_show_count || Math.floor(Math.random() * 3),
-							verification_status: u.verification_status || (Math.random() > 0.5 ? "Verified" : "Pending"),
-							account_status: u.account_status || (Math.random() > 0.8 ? "Frozen" : "Active"),
+							// reliability_score: u.reliability_score || Math.floor(Math.random() * 40) + 60,
+							// completed_dates: u.completed_dates || Math.floor(Math.random() * 20),
+							// no_show_count: u.no_show_count || Math.floor(Math.random() * 3),
+							// verification_status: u.verification_status || (Math.random() > 0.5 ? "Verified" : "Pending"),
+							// account_status: u.account_status || (Math.random() > 0.8 ? "Frozen" : "Active"),
 							last_active: u.last_active || "15 mins ago",
-							signup_date: u.signup_date || "Jan 2026",
+							// signup_date: u.created_at || "Jan 2026",
 						}));
 						setList(enrichedData || []);
 						setTotalRecode(res?.data?.pagination?.total || 0);
@@ -129,6 +145,23 @@ const Index = () => {
 			.catch((error) => {
 				console.error(error);
 			});
+	};
+
+	const handleStatusChange = (userId, newStatus) => {
+		sweetAlertQuestion(`Are you sure you want to change user status to ${newStatus}?`, "Change Status?").then((result) => {
+			if (result) {
+				dispatch(
+					PostAdminUserStatusServices(userId, {status: newStatus}, (res) => {
+						if (res?.success) {
+							setApiFlag(!apiFlag);
+							sweetAlertSuccess("Status updated successfully");
+						} else {
+							sweetAlerts("error", getErrorMessage(res));
+						}
+					}),
+				);
+			}
+		});
 	};
 
 	const handleExport = () => {
@@ -187,30 +220,41 @@ const Index = () => {
 						{record?.gender?.name || "N/A"}
 						{record?.dob && ` • ${fAge(record?.dob) || "0"} yrs`}
 					</Typography>
-					<Typography variant="caption" sx={{color: "text.secondary"}}>
-						{record?.location?.name || "Unknown"}
-					</Typography>
+					{record?.location?.name && (
+						<Typography variant="caption" sx={{color: "text.secondary", alignItems: "center", gap: 0.4, display: "flex"}}>
+							<Iconify icon={"weui:location-filled"} width={14} />
+							{record?.location?.name || "Unknown"}
+						</Typography>
+					)}
 				</Stack>
 			),
 		},
 		{
 			title: "Type",
 			key: "is_admin",
-			width: 130,
+			width: 150,
 			render: (_, record) => {
-				const isVerified = record?.is_admin;
+				const isAdmin = record?.is_admin;
+				const roleName = record?.roles?.[0]?.name;
 				return (
-					<Chip
-						icon={<Iconify icon={isVerified ? "solar:shield-check-bold" : "solar:shield-warning-bold"} width={16} color={isVerified ? "success.main" : "error.main"} />}
-						label={isVerified ? "Admin" : "User"}
-						size="small"
-						sx={{
-							bgcolor: alpha(isVerified ? theme.palette.success.main : theme.palette.error.main, 0.1),
-							color: isVerified ? "success.main" : "error.main",
-							fontWeight: 700,
-							border: "none",
-						}}
-					/>
+					<Stack spacing={0.5} alignItems="flex-start">
+						<Chip
+							icon={<Iconify icon={isAdmin ? "solar:shield-check-bold" : "solar:shield-warning-bold"} width={16} />}
+							label={isAdmin ? "Admin" : "User"}
+							size="small"
+							sx={{
+								bgcolor: alpha(isAdmin ? theme.palette.success.main : theme.palette.error.main, 0.1),
+								color: isAdmin ? "success.main" : "error.main",
+								fontWeight: 700,
+								border: "none",
+							}}
+						/>
+						{isAdmin && roleName && (
+							<Typography variant="caption" sx={{color: "text.secondary", fontWeight: 700, ml: 0.5}}>
+								{roleName}
+							</Typography>
+						)}
+					</Stack>
 				);
 			},
 		},
@@ -219,12 +263,12 @@ const Index = () => {
 			key: "reliability",
 			width: 120,
 			render: (_, record) => {
-				const score = record?.reliability_score || 0;
+				const score = record?.profile_completion_percentage || 0;
 				const color = score >= 90 ? "success.main" : score >= 70 ? "warning.main" : "error.main";
 				return (
 					<Stack direction="row" alignItems="center" spacing={0.5}>
 						<Iconify icon="solar:heart-pulse-bold" width={18} sx={{color}} />
-						<Typography variant="subtitle2" sx={{fontWeight: 800, color}}>
+						<Typography variant="subtitle2" sx={{color}}>
 							{score}%
 						</Typography>
 					</Stack>
@@ -238,11 +282,11 @@ const Index = () => {
 			render: (_, record) => (
 				<Stack direction="column">
 					<Typography variant="caption" sx={{color: "success.main", fontWeight: 700}}>
-						{record?.completed_dates} Completed
+						{record?.completed_dates_count} Completed
 					</Typography>
-					<Typography variant="caption" sx={{color: record?.no_show_count > 0 ? "error.main" : "text.secondary", fontWeight: 600}}>
+					{/* <Typography variant="caption" sx={{color: record?.no_show_count > 0 ? "error.main" : "text.secondary", fontWeight: 600}}>
 						{record?.no_show_count} No-Shows
-					</Typography>
+					</Typography> */}
 				</Stack>
 			),
 		},
@@ -253,10 +297,10 @@ const Index = () => {
 			render: (_, record) => (
 				<Stack direction="column">
 					<Typography variant="caption" sx={{color: "text.primary", fontWeight: 600}}>
-						Last: {record?.last_active}
+						Last: {fDuration(record?.last_logged_in)}
 					</Typography>
 					<Typography variant="caption" sx={{color: "text.secondary"}}>
-						Joined: {record?.signup_date}
+						Joined: {fDate(record?.created_date)}
 					</Typography>
 				</Stack>
 			),
@@ -264,15 +308,35 @@ const Index = () => {
 		{
 			title: "Status",
 			key: "status",
-			width: 120,
+			width: 140,
 			render: (_, record) => {
-				const status = record?.account_status;
-				let color = "success";
-				if (status === "Frozen") color = "info";
-				if (status === "Suspended") color = "warning";
-				if (status === "Banned") color = "error";
+				const status = record?.status?.toLowerCase() || "active";
+				let color = "success.main";
+				if (status === "freeze" || status === "frozen") color = "info.main";
+				if (status === "suspended") color = "warning.main";
+				if (status === "banned") color = "error.main";
 
-				return <Chip label={status} size="small" color={color} variant="soft" sx={{fontWeight: 800, borderRadius: 1}} />;
+				return (
+					<Select
+						size="small"
+						value={status === "frozen" ? "freeze" : status}
+						onChange={(e) => handleStatusChange(record.id, e.target.value)}
+						onClick={(e) => e.stopPropagation()}
+						sx={{
+							height: 30,
+							fontSize: "0.75rem",
+							fontWeight: 800,
+							color: color,
+							"& .MuiOutlinedInput-notchedOutline": {borderColor: color},
+							"&:hover .MuiOutlinedInput-notchedOutline": {borderColor: color},
+							"&.Mui-focused .MuiOutlinedInput-notchedOutline": {borderColor: color},
+							"& .MuiSelect-icon": {color: color},
+						}}>
+						{statuses?.map((status) => (
+							<MenuItem value={status?.id}>{status?.name}</MenuItem>
+						))}
+					</Select>
+				);
 			},
 		},
 		{
@@ -295,7 +359,7 @@ const Index = () => {
 					</CustomActionIconButton>
 
 					<CustomActionIconButton
-						color="success"
+						color="info"
 						tooltip="Edit User"
 						onClick={(e) => {
 							e.stopPropagation();
@@ -348,7 +412,7 @@ const Index = () => {
 				</Stack>
 			</Stack>
 
-			<Card sx={{borderRadius: 4, boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.05)", border: "none"}}>
+			<Card >
 				<Stack spacing={2}>
 					<Stack spacing={2} direction="row" sx={{m: 2, px: 2, pt: 2, justifyContent: "space-between", alignItems: "center"}}>
 						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={setSearch} placeholder="Search by name, email, phone..." width={{xs: "100%", md: 400}} />

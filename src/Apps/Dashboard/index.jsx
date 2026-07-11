@@ -11,33 +11,36 @@ import {useTheme, alpha} from "@mui/material/styles";
 
 import ReactApexChart from "react-apexcharts";
 import Iconify from "src/components/common/iconify";
+import {useNavigate} from "react-router-dom";
+import {GetAdminDashboardServices} from "src/services/Users.Services";
+import {AdminRoutes} from "src/routes/routes";
 import {useDispatch} from "react-redux";
-import { GetAdminDashboardServices } from "src/services/Users.Services";
 
 const Dashboard = () => {
 	const theme = useTheme();
 	const dispatch = useDispatch();
+	const navigate = useNavigate();
 
 	const [dashboardData, setDashboardData] = useState(null);
 
 	const adminName = dashboardData?.admin?.name || "Mark Steave";
 
 	const summaryStats = [
-		{title: "Total Users", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
-		{title: "Verified Users", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
-		{title: "Pending Verification", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
-		{title: "Male/Female Ratio", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
-		{title: "Daily Active Users", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
-		{title: "Revenue Today", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
-		{title: "Revenue Month", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
-		{title: "Open Safety Reports", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
-		// {title: "Upcoming Events", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "info"},
-		// {title: "Active Matches", value: dashboardData?.metrics?.active_matches || 0, icon: "solar:heart-bold-duotone", color: "error"},
-		// {title: "Premium Subscribers", value: dashboardData?.metrics?.premium_subscribers || 0, icon: "solar:crown-star-bold-duotone", color: "warning"},
-		// {title: "Dates Scheduled", value: dashboardData?.metrics?.dates_scheduled || 0, icon: "solar:calendar-date-bold-duotone", color: "success"},
+		{title: "Total Users", value: dashboardData?.metrics?.total_users || 0, icon: "solar:users-group-two-rounded-bold-duotone", color: "primary", path: AdminRoutes.UsersList},
+		{title: "Verified Users", value: dashboardData?.metrics?.verified_users || 0, icon: "solar:user-check-bold-duotone", color: "success", path: AdminRoutes.VerificationList},
+		{title: "Verified Pending", value: dashboardData?.metrics?.pending_verification || 0, icon: "solar:user-speak-bold-duotone", color: "warning", path: AdminRoutes.VerificationList},
+		{title: "Gender Ratio", value: dashboardData?.metrics?.male_female_ratio || 0, icon: "solar:pie-chart-2-bold-duotone", color: "info"},
+		{title: "Active Users", value: dashboardData?.metrics?.daily_active_users || 0, icon: "solar:graph-up-bold-duotone", color: "primary"},
+		{title: "Daily Rev", value: dashboardData?.metrics?.revenue_today || 0, icon: "solar:wad-of-money-bold-duotone", color: "success", path: AdminRoutes.PaymentList},
+		{title: "Monthly Rev", value: dashboardData?.metrics?.revenue_month || 0, icon: "solar:wallet-money-bold-duotone", color: "success", path: AdminRoutes.PaymentList},
+		{title: "Reports", value: dashboardData?.metrics?.open_safety_reports || 0, icon: "solar:shield-warning-bold-duotone", color: "error", path: AdminRoutes.UserReportsList},
+		{title: "Events", value: dashboardData?.metrics?.total_users || 0, icon: "solar:calendar-date-bold-duotone", color: "info", path: AdminRoutes.VenuesList},
+		{title: "Matches", value: dashboardData?.metrics?.active_matches || 0, icon: "solar:heart-bold-duotone", color: "error"},
+		{title: "Premium", value: dashboardData?.metrics?.premium_subscribers || 0, icon: "solar:crown-star-bold-duotone", color: "warning"},
+		{title: "Dates", value: dashboardData?.metrics?.dates_scheduled || 0, icon: "solar:calendar-minimalistic-bold-duotone", color: "success", path: AdminRoutes.DateList},
 	];
 
-	const chartCategories = dashboardData?.platform_growth?.map(item => item.month) || ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
+	const chartCategories = dashboardData?.platform_growth?.map((item) => item.month) || ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
 
 	const chartOptions = {
 		chart: {type: "area", toolbar: {show: false}, fontFamily: "inherit"},
@@ -56,8 +59,8 @@ const Dashboard = () => {
 	};
 
 	const chartSeries = [
-		{name: "New Users", data: dashboardData?.platform_growth?.map(item => item.new_users) || [0, 0, 0, 0, 0, 0, 0]},
-		{name: "Matches", data: dashboardData?.platform_growth?.map(item => item.matches) || [0, 0, 0, 0, 0, 0, 0]},
+		{name: "New Users", data: dashboardData?.platform_growth?.map((item) => item.new_users) || [0, 0, 0, 0, 0, 0, 0]},
+		{name: "Matches", data: dashboardData?.platform_growth?.map((item) => item.matches) || [0, 0, 0, 0, 0, 0, 0]},
 	];
 
 	const recentUsers = dashboardData?.new_members || [];
@@ -90,12 +93,30 @@ const Dashboard = () => {
 			{/* Summary Widgets */}
 			<Grid container spacing={2}>
 				{summaryStats.map((stat, index) => (
-					<Grid size={{xs: 12, sm: 6, md: 3}} key={index}>
-						<Card variant="outlined" sx={{p: 3, borderRadius: 2, display: "flex", alignItems: "center", gap: 2, borderColor: "divider"}}>
+					<Grid size={{xs: 6, sm: 4, md: 3, lg: 2}} key={index}>
+						<Card
+							variant="outlined"
+							onClick={() => stat.path && navigate(stat.path)}
+							sx={{
+								p: 1.4,
+								borderRadius: 3,
+								display: "flex",
+								alignItems: "center",
+								gap: 1.5,
+								borderColor: "divider",
+								cursor: stat.path ? "pointer" : "default",
+								transition: "all 0.2s ease-in-out",
+								"&:hover": {
+									boxShadow: stat.path ? theme.shadows[3] : "none",
+									transform: stat.path ? "translateY(-2px)" : "none",
+									borderColor: stat.path ? `${stat.color}.main` : "divider",
+								},
+							}}>
 							<Box
 								sx={{
-									width: 56,
-									height: 56,
+									width: 40,
+									height: 40,
+									minWidth: 40,
 									borderRadius: 2,
 									display: "flex",
 									alignItems: "center",
@@ -103,13 +124,13 @@ const Dashboard = () => {
 									bgcolor: alpha(theme.palette[stat.color].main, 0.1),
 									color: `${stat.color}.main`,
 								}}>
-								<Iconify icon={stat.icon} width={28} />
+								<Iconify icon={stat.icon} width={20} />
 							</Box>
-							<Box>
-								<Typography variant="h5" fontWeight={700}>
+							<Box sx={{minWidth: 0}}>
+								<Typography variant="h6" fontWeight={800} noWrap>
 									{stat.value}
 								</Typography>
-								<Typography variant="body2" color="text.secondary" fontWeight={500}>
+								<Typography variant="caption" color="text.secondary" fontWeight={600} noWrap sx={{display: "block"}}>
 									{stat.title}
 								</Typography>
 							</Box>
@@ -147,7 +168,7 @@ const Dashboard = () => {
 						<Stack spacing={3}>
 							{recentUsers.map((user) => (
 								<Stack direction="row" spacing={2} alignItems="center" key={user.id}>
-									<Avatar src={user.profile_photo_url} sx={{width: 48, height: 48}} />
+									<Avatar src={user.profile_photo_url} sx={{width: 42, height: 42}} variant="rounded" />
 									<Box sx={{flexGrow: 1, minWidth: 0}}>
 										<Typography variant="subtitle2" noWrap>
 											{user.name}

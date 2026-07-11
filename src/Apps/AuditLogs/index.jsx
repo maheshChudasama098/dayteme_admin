@@ -106,7 +106,7 @@ export default function AuditLogsList() {
 				const email = record?.causer?.email || "System Auto";
 				return (
 					<Stack direction="row" alignItems="center" spacing={1.5}>
-						<Avatar sx={{width: 32, height: 32, bgcolor: theme.palette.primary.main, fontSize: 14}}>{adminName.charAt(0)}</Avatar>
+						<Avatar sx={{bgcolor: theme.palette.primary.main, }} variant="rounded">{adminName.charAt(0)}</Avatar>
 						<Box>
 							<Typography variant="subtitle2" color="text.primary" noWrap sx={{fontWeight: 700}}>
 								{adminName}
@@ -211,18 +211,18 @@ export default function AuditLogsList() {
 				</Box>
 
 				<Stack spacing={1.5} direction="row" flexWrap="wrap">
-					<Button variant="outlined" color="primary" startIcon={<Iconify icon="solar:export-bold-duotone" />} sx={{borderRadius: 8, fontWeight: 700}}>
+					<Button variant="outlined" color="primary" startIcon={<Iconify icon="solar:export-bold-duotone" />}>
 						Export Logs
 					</Button>
 				</Stack>
 			</Stack>
 
-			<Card sx={{borderRadius: 4, boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.05)", border: "none"}}>
+			<Card>
 				<Stack spacing={2}>
 					<Stack spacing={2} direction="row" sx={{m: 2, px: 2, pt: 2, justifyContent: "space-between", alignItems: "center"}}>
 						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={setSearch} placeholder="Search by admin name, action, or record ID..." width={{xs: "100%", md: 400}} />
 						<Stack direction="row" spacing={1}>
-							<Button variant="outlined" startIcon={<Iconify icon="solar:filter-bold-duotone" />} sx={{borderRadius: 8}}>
+							<Button variant="outlined" startIcon={<Iconify icon="solar:filter-bold-duotone" />}>
 								Filters
 							</Button>
 						</Stack>

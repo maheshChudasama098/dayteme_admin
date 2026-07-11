@@ -2,11 +2,11 @@ import jwtAuthAxios from "./jwtAuth";
 
 export function GetAdminUsersListServices(params, cb) {
 	return (dispatch) => {
-		dispatch({type: "FETCH_START"});
+		dispatch({ type: "FETCH_START" });
 		jwtAuthAxios
-			.get("/v1/admin/users", {params})
+			.get("/v1/admin/users", { params })
 			.then((res) => {
-				dispatch({type: "FETCH_SUCCESS"});
+				dispatch({ type: "FETCH_SUCCESS" });
 				if (cb) cb(res.data);
 			})
 			.catch((error) => {
@@ -17,11 +17,11 @@ export function GetAdminUsersListServices(params, cb) {
 
 export function GetAdminUsersExportServices(params, cb) {
 	return (dispatch) => {
-		dispatch({type: "FETCH_START"});
+		dispatch({ type: "FETCH_START" });
 		jwtAuthAxios
-			.get("/v1/admin/users/export", {params, responseType: "blob"})
+			.get("/v1/admin/users/export", { params, responseType: "blob" })
 			.then((res) => {
-				dispatch({type: "FETCH_SUCCESS"});
+				dispatch({ type: "FETCH_SUCCESS" });
 				if (cb) cb(res); // Return the full response for blob
 			})
 			.catch((error) => {
@@ -32,11 +32,11 @@ export function GetAdminUsersExportServices(params, cb) {
 
 export function GetAdminsListServices(params, cb) {
 	return (dispatch) => {
-		dispatch({type: "FETCH_START"});
+		dispatch({ type: "FETCH_START" });
 		jwtAuthAxios
-			.get("/v1/admin/users/admins", {params})
+			.get("/v1/admin/users/admins", { params })
 			.then((res) => {
-				dispatch({type: "FETCH_SUCCESS"});
+				dispatch({ type: "FETCH_SUCCESS" });
 				if (cb) cb(res.data);
 			})
 			.catch((error) => {
@@ -47,11 +47,11 @@ export function GetAdminsListServices(params, cb) {
 
 export function PostAdminUserAddServices(data, cb) {
 	return (dispatch) => {
-		dispatch({type: "FETCH_START"});
+		dispatch({ type: "FETCH_START" });
 		jwtAuthAxios
 			.post("/v1/admin/users", data)
 			.then((res) => {
-				dispatch({type: "FETCH_SUCCESS"});
+				dispatch({ type: "FETCH_SUCCESS" });
 				if (cb) cb(res.data);
 			})
 			.catch((error) => {
@@ -62,11 +62,11 @@ export function PostAdminUserAddServices(data, cb) {
 
 export function PutAdminUserServices(userId, data, cb) {
 	return (dispatch) => {
-		dispatch({type: "FETCH_START"});
+		dispatch({ type: "FETCH_START" });
 		jwtAuthAxios
 			.put(`/v1/admin/users/${userId}`, data)
 			.then((res) => {
-				dispatch({type: "FETCH_SUCCESS"});
+				dispatch({ type: "FETCH_SUCCESS" });
 				if (cb) cb(res.data);
 			})
 			.catch((error) => {
@@ -77,11 +77,11 @@ export function PutAdminUserServices(userId, data, cb) {
 
 export function DeleteAdminUserServices(userId, cb) {
 	return (dispatch) => {
-		dispatch({type: "FETCH_START"});
+		dispatch({ type: "FETCH_START" });
 		jwtAuthAxios
 			.delete(`/v1/admin/users/${userId}`)
 			.then((res) => {
-				dispatch({type: "FETCH_SUCCESS"});
+				dispatch({ type: "FETCH_SUCCESS" });
 				if (cb) cb(res.data);
 			})
 			.catch((error) => {
@@ -92,11 +92,11 @@ export function DeleteAdminUserServices(userId, cb) {
 
 export function GetAdminUserDetailsServices(userId, cb) {
 	return (dispatch) => {
-		dispatch({type: "FETCH_START"});
+		dispatch({ type: "FETCH_START" });
 		jwtAuthAxios
 			.get(`/v1/admin/users/${userId}`)
 			.then((res) => {
-				dispatch({type: "FETCH_SUCCESS"});
+				dispatch({ type: "FETCH_SUCCESS" });
 				if (cb) cb(res.data);
 			})
 			.catch((error) => {
@@ -107,11 +107,11 @@ export function GetAdminUserDetailsServices(userId, cb) {
 
 export function GetAdminDashboardServices(cb) {
 	return (dispatch) => {
-		dispatch({type: "FETCH_START"});
+		dispatch({ type: "FETCH_START" });
 		jwtAuthAxios
 			.get(`/v1/admin/dashboard`)
 			.then((res) => {
-				dispatch({type: "FETCH_SUCCESS"});
+				dispatch({ type: "FETCH_SUCCESS" });
 				if (cb) cb(res.data);
 			})
 			.catch((error) => {
@@ -122,11 +122,11 @@ export function GetAdminDashboardServices(cb) {
 
 export function GetGenderListServices(cb) {
 	return (dispatch) => {
-		dispatch({type: "FETCH_START"});
+		dispatch({ type: "FETCH_START" });
 		jwtAuthAxios
 			.get("/v1/admin/genders")
 			.then((res) => {
-				dispatch({type: "FETCH_SUCCESS"});
+				dispatch({ type: "FETCH_SUCCESS" });
 				if (cb) cb(res.data);
 			})
 			.catch((error) => {
@@ -134,3 +134,124 @@ export function GetGenderListServices(cb) {
 			});
 	};
 }
+
+export function PostAdminUserKycStatusServices(userId, data, cb) {
+	return (dispatch) => {
+		dispatch({ type: "FETCH_START" });
+		jwtAuthAxios
+			.post(`/v1/admin/users/${userId}/kyc/status`, data)
+			.then((res) => {
+				dispatch({ type: "FETCH_SUCCESS" });
+				if (cb) cb(res.data);
+			})
+			.catch((error) => {
+				if (cb) cb(error?.response?.data || error);
+			});
+	};
+}
+
+export function GetAdminUserStatusesServices(cb) {
+	return (dispatch) => {
+		dispatch({ type: "FETCH_START" });
+		jwtAuthAxios
+			.get("/v1/admin/users/statuses")
+			.then((res) => {
+				dispatch({ type: "FETCH_SUCCESS" });
+				if (cb) cb(res.data);
+			})
+			.catch((error) => {
+				if (cb) cb(error?.response?.data || error);
+			});
+	};
+}
+
+export function PostAdminUserStatusServices(userId, data, cb) {
+	return (dispatch) => {
+		dispatch({ type: "FETCH_START" });
+		jwtAuthAxios
+			.post(`/v1/admin/users/${userId}/status`, data)
+			.then((res) => {
+				dispatch({ type: "FETCH_SUCCESS" });
+				if (cb) cb(res.data);
+			})
+			.catch((error) => {
+				if (cb) cb(error?.response?.data || error);
+			});
+	};
+}
+
+export function GetAdminUserKycVerificationsServices(params, cb) {
+	return (dispatch) => {
+		dispatch({ type: "FETCH_START" });
+		jwtAuthAxios
+			.get("/v1/admin/users/kyc/verifications", { params })
+			.then((res) => {
+				dispatch({ type: "FETCH_SUCCESS" });
+				if (cb) cb(res.data);
+			})
+			.catch((error) => {
+				if (cb) cb(error?.response?.data || error);
+			});
+	};
+}
+
+export function GetAdminUnfreezeRequestsServices(params, cb) {
+	return (dispatch) => {
+		dispatch({ type: "FETCH_START" });
+		jwtAuthAxios
+			.get("/v1/admin/users/unfreeze-requests", { params })
+			.then((res) => {
+				dispatch({ type: "FETCH_SUCCESS" });
+				if (cb) cb(res.data);
+			})
+			.catch((error) => {
+				if (cb) cb(error?.response?.data || error);
+			});
+	};
+}
+
+export function PostAdminResolveUnfreezeRequestServices(requestId, data, cb) {
+	return (dispatch) => {
+		dispatch({ type: "FETCH_START" });
+		jwtAuthAxios
+			.post(`/v1/admin/users/unfreeze-requests/${requestId}/status`, data)
+			.then((res) => {
+				dispatch({ type: "FETCH_SUCCESS" });
+				if (cb) cb(res.data);
+			})
+			.catch((error) => {
+				if (cb) cb(error?.response?.data || error);
+			});
+	};
+}
+
+export function GetAdminUserDeletionRequestsServices(params, cb) {
+	return (dispatch) => {
+		dispatch({ type: "FETCH_START" });
+		jwtAuthAxios
+			.get("/v1/admin/users/deletion-requests", { params })
+			.then((res) => {
+				dispatch({ type: "FETCH_SUCCESS" });
+				if (cb) cb(res.data);
+			})
+			.catch((error) => {
+				if (cb) cb(error?.response?.data || error);
+			});
+	};
+}
+
+export function PostAdminProcessUserDeletionRequestServices(requestId, cb) {
+	return (dispatch) => {
+		dispatch({ type: "FETCH_START" });
+		jwtAuthAxios
+			.post(`/v1/admin/users/deletion-requests/${requestId}/process`)
+			.then((res) => {
+				dispatch({ type: "FETCH_SUCCESS" });
+				if (cb) cb(res.data);
+			})
+			.catch((error) => {
+				if (cb) cb(error?.response?.data || error);
+			});
+	};
+}
+

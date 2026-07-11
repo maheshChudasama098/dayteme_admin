@@ -21,6 +21,7 @@ import {GetAdminNotesListServices, GetAdminNotesExportServices, DeleteAdminNoteS
 import NoteFilter from "./NoteFilter";
 import NoteModel from "./NoteModel";
 import {sweetAlertQuestion, sweetAlertSuccess, sweetAlerts} from "src/utils/sweet-alerts";
+import {fDate} from "src/utils/utils";
 
 export default function NotesList() {
 	const theme = useTheme();
@@ -111,8 +112,10 @@ export default function NotesList() {
 			key: "admin",
 			width: 250,
 			render: (_, record) => (
-				<Stack direction="row" alignItems="center" spacing={1.5}>
-					<Avatar sx={{width: 32, height: 32, bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main"}}>{record?.admin?.name?.charAt(0) || "A"}</Avatar>
+				<Stack direction="row" alignItems="center" spacing={1}>
+					<Avatar sx={{bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main"}} variant="rounded">
+						{record?.admin?.name?.charAt(0) || "A"}
+					</Avatar>
 					<Box>
 						<Typography variant="subtitle2" color="text.primary" noWrap sx={{fontWeight: 700}}>
 							{record?.admin?.name}
@@ -129,8 +132,10 @@ export default function NotesList() {
 			key: "target",
 			width: 250,
 			render: (_, record) => (
-				<Stack direction="row" alignItems="center" spacing={1.5}>
-					<Avatar sx={{width: 32, height: 32, bgcolor: alpha(theme.palette.secondary.main, 0.1), color: "secondary.main"}}>{record?.user?.name?.charAt(0) || "U"}</Avatar>
+				<Stack direction="row" alignItems="center" spacing={1}>
+					<Avatar sx={{bgcolor: alpha(theme.palette.secondary.main, 0.1), color: "secondary.main"}} variant="rounded">
+						{record?.user?.name?.charAt(0) || "U"}
+					</Avatar>
 					<Box>
 						<Typography variant="subtitle2" color="text.primary" noWrap sx={{fontWeight: 700}}>
 							{record?.user?.name}
@@ -158,7 +163,7 @@ export default function NotesList() {
 			dataIndex: "created_at",
 			key: "date",
 			width: 180,
-			render: (created_at) => <Typography variant="body2">{created_at ? new Date(created_at).toLocaleDateString() : ""}</Typography>,
+			render: (created_at) => <Typography variant="body2">{fDate(created_at)}</Typography>,
 		},
 		{
 			title: "Action",

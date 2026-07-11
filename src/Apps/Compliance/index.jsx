@@ -223,7 +223,7 @@ export default function ComplianceList() {
 				</Alert>
 			</Stack>
 
-			<Card sx={{borderRadius: 4, boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.05)", border: "none"}}>
+			<Card >
 				<Stack spacing={2}>
 					<Stack spacing={2} direction="row" sx={{m: 2, px: 1, pt: 1, justifyContent: "space-between", alignItems: "center"}}>
 						<CustomSearchInput loading={false} defaultValue={search} callBack={setSearch} placeholder="Search by document title, category..." width={{xs: "100%", md: 400}} />

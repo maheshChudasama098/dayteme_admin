@@ -14,6 +14,7 @@ import Divider from "@mui/material/Divider";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
+import Select from "@mui/material/Select";
 import Typography from "@mui/material/Typography";
 
 import Iconify from "src/components/common/iconify";
@@ -24,9 +25,15 @@ import DatesTab from "./DatesTab";
 import PaymentsTab from "./PaymentsTab";
 import TimelineTab from "./TimelineTab";
 import GiftsTab from "./GiftsTab";
+import KycTab from "./KycTab";
+import SparkHistoryTab from "./SparkHistoryTab";
+import UserNoteModel from "./UserNoteModel";
+import UserKycModel from "./UserKycModel";
 import {useDispatch} from "react-redux";
-import {GetAdminUserDetailsServices} from "src/services/Users.Services";
-import {sweetAlertQuestion} from "src/utils/sweet-alerts";
+import {GetAdminUserDetailsServices, GetAdminUserStatusesServices, PostAdminUserKycStatusServices, PostAdminUserStatusServices} from "src/services/Users.Services";
+import {sweetAlertQuestion, sweetAlertSuccess, sweetAlerts} from "src/utils/sweet-alerts";
+import {fDuration, getErrorMessage} from "src/utils/utils";
+import {alpha} from "@mui/material";
 
 const UserDetails = () => {
 	const dispatch = useDispatch();
@@ -36,6 +43,11 @@ const UserDetails = () => {
 
 	const [currentTab, setCurrentTab] = useState("profile");
 	const [actionAnchorEl, setActionAnchorEl] = useState(null);
+
+	const [kycDialogOpen, setKycDialogOpen] = useState(false);
+	const [noteModelOpen, setNoteModelOpen] = useState(false);
+
+	const [statuses, setStatuses] = useState([]);
 
 	const handleTabChange = (event, newValue) => {
 		setCurrentTab(newValue);
@@ -58,14 +70,59 @@ const UserDetails = () => {
 		}
 	}, [dispatch, id]);
 
+	useEffect(() => {
+		function apiCallAction() {
+			dispatch(
+				GetAdminUserStatusesServices((res) => {
+					if (res?.success) {
+						setStatuses(res?.data?.statuses);
+					}
+				}),
+			);
+		}
+		apiCallAction();
+	}, [dispatch]);
+
 	const educationWork = [user?.education_work?.job_title, user?.education_work?.company, user?.education_work?.school].filter(Boolean).join(" • ");
 	const userImage = user?.photos?.length > 0 ? user.photos[0].file_name : "";
 
 	const handleAdminAction = (actionName) => {
 		setActionAnchorEl(null);
+		if (actionName === "Update Verification") {
+			setKycDialogOpen(true);
+			return;
+		}
+		if (actionName === "Add Internal Note") {
+			setNoteModelOpen(true);
+			return;
+		}
+
 		sweetAlertQuestion(`Are you sure you want to ${actionName.toLowerCase()} this user?`, `Confirm ${actionName}`).then((result) => {
 			if (result) {
 				// Execute action logic
+			}
+		});
+	};
+
+	const handleAccountStatusChange = (newStatus) => {
+		sweetAlertQuestion(`Are you sure you want to change user status to ${newStatus}?`, "Change Status?").then((result) => {
+			if (result) {
+				dispatch(
+					PostAdminUserStatusServices(id, {status: newStatus}, (res) => {
+						if (res?.success) {
+							sweetAlertSuccess("Status updated successfully");
+							dispatch(
+								GetAdminUserDetailsServices(id, (resData) => {
+									if (resData?.success) {
+										setUser(resData?.data?.user || {});
+									}
+								}),
+							);
+						} else {
+							sweetAlerts("error", getErrorMessage(res));
+						}
+					}),
+				);
 			}
 		});
 	};
@@ -84,7 +141,7 @@ const UserDetails = () => {
 				</Box>
 
 				<Stack direction="row" spacing={1.5}>
-					<Button color="inherit" variant="outlined" startIcon={<Iconify icon="eva:arrow-back-fill" />} sx={{borderRadius: 8}} onClick={() => navigate(-1)}>
+					<Button color="primary" variant="outlined" startIcon={<Iconify icon="eva:arrow-back-fill" />} sx={{mb: 1, ml: -1}} onClick={() => navigate(-1)}>
 						Back
 					</Button>
 					<Button color="primary" variant="contained" startIcon={<Iconify icon="solar:settings-bold" />} sx={{borderRadius: 8}} onClick={(e) => setActionAnchorEl(e.currentTarget)}>
@@ -95,20 +152,20 @@ const UserDetails = () => {
 						open={Boolean(actionAnchorEl)}
 						onClose={() => setActionAnchorEl(null)}
 						PaperProps={{sx: {width: 220, borderRadius: 2, mt: 1, boxShadow: "0px 5px 20px rgba(0,0,0,0.1)"}}}>
-						<MenuItem onClick={() => handleAdminAction("Freeze Account")} sx={{color: "info.main"}}>
+						<MenuItem onClick={() => handleAccountStatusChange("freeze")} sx={{color: "info.main"}}>
 							<Iconify icon="solar:snowflake-bold" sx={{mr: 2}} /> Freeze Account
 						</MenuItem>
-						<MenuItem onClick={() => handleAdminAction("Reset Verification")}>
-							<Iconify icon="solar:shield-cross-bold" sx={{mr: 2}} /> Reset Verification
+						<MenuItem onClick={() => handleAdminAction("Update Verification")}>
+							<Iconify icon="solar:shield-check-bold" sx={{mr: 2}} /> Update Verification
 						</MenuItem>
 						<MenuItem onClick={() => handleAdminAction("Add Internal Note")}>
 							<Iconify icon="solar:document-add-bold" sx={{mr: 2}} /> Add Note
 						</MenuItem>
 						<Divider />
-						<MenuItem onClick={() => handleAdminAction("Suspend Account")} sx={{color: "warning.main"}}>
+						<MenuItem onClick={() => handleAccountStatusChange("suspended")} sx={{color: "warning.main"}}>
 							<Iconify icon="solar:pause-circle-bold" sx={{mr: 2}} /> Suspend Account
 						</MenuItem>
-						<MenuItem onClick={() => handleAdminAction("Ban User")} sx={{color: "error.main"}}>
+						<MenuItem onClick={() => handleAccountStatusChange("banned")} sx={{color: "error.main"}}>
 							<Iconify icon="solar:danger-circle-bold" sx={{mr: 2}} /> Ban User
 						</MenuItem>
 					</Menu>
@@ -118,10 +175,10 @@ const UserDetails = () => {
 			{/* Summary KPI Widgets */}
 			<Grid container spacing={3}>
 				{[
-					{title: "Completed Dates", value: user?.completed_dates || 14, icon: "solar:calendar-date-bold", color: "success.main"},
-					{title: "No-Shows", value: user?.no_shows || 1, icon: "solar:ghost-bold", color: "error.main"},
-					{title: "Reliability Score", value: user?.reliability_score || "94%", icon: "solar:heart-pulse-bold", color: "primary.main"},
-					{title: "Safety Reports", value: user?.reports || 0, icon: "solar:shield-warning-bold", color: "warning.main"},
+					{title: "Completed Dates", value: user?.completed_dates_count || 0, icon: "solar:calendar-date-bold", color: "success.main"},
+					{title: "Total Spark", value: user?.total_spark || 0, icon: "solar:star-fall-bold", color: "warning.main"},
+					{title: "Reliability Score", value: user?.reliability_score || user?.reliability_label || "N/A", icon: "solar:heart-pulse-bold", color: "primary.main"},
+					{title: "Safety Reports", value: user?.safety_reports_count || 0, icon: "solar:shield-warning-bold", color: "error.main"},
 				].map((kpi, idx) => (
 					<Grid size={{xs: 12, sm: 6, md: 3}} key={idx}>
 						<Card sx={{p: 2, border: "1px solid", borderColor: "divider", display: "flex", alignItems: "center", gap: 2}}>
@@ -168,13 +225,13 @@ const UserDetails = () => {
 						/>
 						<Box sx={{p: 3, pt: 2}}>
 							<Typography variant="h5" sx={{fontWeight: "800", mb: 0.5}}>
-								{user?.name || "Mahesh"}
+								{user?.name || ""}
 							</Typography>
 							<Typography variant="body2" color="text.secondary" sx={{mb: 2, fontWeight: 500}}>
-								{user?.email || "mahesh@example.com"} • {user?.phone_number || "+91 9876543210"}
+								{user?.email || ""} • {user?.mobile || ""}
 							</Typography>
 							<Typography variant="body2" sx={{mb: 3, px: 2}}>
-								{educationWork || "Software Engineer • InnovateTech • Mumbai Univ"}
+								{educationWork || ""}
 							</Typography>
 
 							<Stack spacing={1.5} sx={{textAlign: "left", bgcolor: "background.default", p: 2, borderRadius: 2}}>
@@ -182,13 +239,38 @@ const UserDetails = () => {
 									<Typography variant="body2" color="text.secondary">
 										Verification
 									</Typography>
-									<Chip label="Fully Verified" color="success" size="small" sx={{fontWeight: 700, height: 20}} />
+									<Chip label={user?.document_verification_status_text} color="success" />
 								</Stack>
-								<Stack direction="row" justifyContent="space-between">
+								<Stack direction="row" justifyContent="space-between" alignItems="center">
 									<Typography variant="body2" color="text.secondary">
 										Status
 									</Typography>
-									<Chip label="Active" color="primary" size="small" sx={{fontWeight: 700, height: 20}} />
+									<Select
+										size="small"
+										value={user?.status?.toLowerCase() === "frozen" ? "freeze" : user?.status?.toLowerCase() || "active"}
+										onChange={(e) => handleAccountStatusChange(e.target.value)}
+										sx={{
+											height: 28,
+											fontSize: "0.75rem",
+											fontWeight: 700,
+											"& .MuiOutlinedInput-notchedOutline": {border: "none"},
+											bgcolor: (theme) => {
+												const st = user?.status?.toLowerCase();
+												return alpha(
+													st === "frozen" || st === "freeze" ? theme.palette.info.main : st === "suspended" ? theme.palette.warning.main : st === "banned" ? theme.palette.error.main : theme.palette.success.main,
+													0.1,
+												);
+											},
+											color: () => {
+												const st = user?.status?.toLowerCase();
+												return st === "frozen" || st === "freeze" ? "info.main" : st === "suspended" ? "warning.main" : st === "banned" ? "error.main" : "success.main";
+											},
+											borderRadius: 1,
+										}}>
+										{statuses?.map((status) => (
+											<MenuItem value={status?.id}>{status?.name}</MenuItem>
+										))}
+									</Select>
 								</Stack>
 								<Stack direction="row" justifyContent="space-between">
 									<Typography variant="body2" color="text.secondary">
@@ -198,12 +280,20 @@ const UserDetails = () => {
 										Premium
 									</Typography>
 								</Stack>
+								{/* <Stack direction="row" justifyContent="space-between">
+									<Typography variant="body2" color="text.secondary">
+										Total Spark
+									</Typography>
+									<Typography variant="subtitle2" fontWeight="700" color="primary.main">
+										{user?.total_spark || 0}
+									</Typography>
+								</Stack> */}
 								<Stack direction="row" justifyContent="space-between">
 									<Typography variant="body2" color="text.secondary">
 										Last Active
 									</Typography>
 									<Typography variant="subtitle2" fontWeight="700">
-										15 mins ago
+										{fDuration(user.last_logged_in)}
 									</Typography>
 								</Stack>
 							</Stack>
@@ -213,23 +303,61 @@ const UserDetails = () => {
 					<Card sx={{p: 3, borderRadius: 4, boxShadow: "0 5px 25px rgba(0,0,0,0.05)", border: "none"}}>
 						<Stack direction="row" alignItems="center" justifyContent="space-between" sx={{mb: 2}}>
 							<Typography variant="subtitle1" sx={{fontWeight: "bold"}}>
-								Photos ({user?.photos?.length || 3})
+								Photos ({user?.photos?.length || 0})
 							</Typography>
 							<Typography variant="body2" color="primary" sx={{cursor: "pointer", fontWeight: 700}}>
 								View All
 							</Typography>
 						</Stack>
-						<Grid container spacing={1}>
-							{(user?.photos?.length > 0 ? user.photos.slice(0, 3).map((p) => p.file_name) : [1, 2, 3]).map((img, i) => (
-								<Grid item xs={4} key={i}>
-									<Box
-										component="img"
-										src={typeof img === "string" ? img : "https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?q=80"}
-										sx={{width: "100%", borderRadius: 2, objectFit: "cover", aspectRatio: "1/1", display: "block"}}
-									/>
-								</Grid>
-							))}
-						</Grid>
+						{user?.photos?.length > 0 ? (
+							<Box
+								sx={{
+									display: "grid",
+									gap: 1,
+									gridTemplateColumns: user.photos.length === 1 ? "1fr" : "repeat(2, 1fr)",
+									gridTemplateRows: "repeat(2, 120px)",
+								}}>
+								{user.photos.slice(0, 3).map((p, i) => (
+									<Box key={i} sx={{position: "relative", gridRow: (i === 0 && user.photos.length > 2) || user.photos.length <= 2 ? "span 2" : "span 1"}}>
+										<Box
+											component="img"
+											src={p.file_name}
+											sx={{
+												width: "100%",
+												height: "100%",
+												borderRadius: 2,
+												objectFit: "cover",
+												display: "block",
+											}}
+										/>
+										{i === 2 && user.photos.length > 3 && (
+											<Box
+												sx={{
+													position: "absolute",
+													inset: 0,
+													bgcolor: "rgba(0,0,0,0.6)",
+													borderRadius: 2,
+													display: "flex",
+													alignItems: "center",
+													justifyContent: "center",
+													color: "common.white",
+													cursor: "pointer",
+													transition: "all 0.2s",
+													"&:hover": {bgcolor: "rgba(0,0,0,0.7)"},
+												}}>
+												<Typography variant="h6" fontWeight="bold">
+													+{user.photos.length - 3}
+												</Typography>
+											</Box>
+										)}
+									</Box>
+								))}
+							</Box>
+						) : (
+							<Typography variant="body2" sx={{textAlign: "center", color: "text.secondary", py: 3, fontStyle: "italic"}}>
+								No photos uploaded
+							</Typography>
+						)}
 					</Card>
 				</Grid>
 
@@ -247,23 +375,47 @@ const UserDetails = () => {
 									// "& .Mui-selected": {color: "primary.main"},
 								}}>
 								<Tab label="Profile" value="profile" icon={<Iconify icon="solar:user-bold" width={20} />} iconPosition="start" />
-								<Tab label="Timeline" value="timeline" icon={<Iconify icon="solar:history-bold" width={20} />} iconPosition="start" />
+								<Tab label="KYC" value="kyc" icon={<Iconify icon="solar:shield-check-bold" width={20} />} iconPosition="start" />
+
+								{/* <Tab label="Timeline" value="timeline" icon={<Iconify icon="solar:history-bold" width={20} />} iconPosition="start" /> */}
 								<Tab label="Dates" value="dates" icon={<Iconify icon="solar:calendar-date-bold" width={20} />} iconPosition="start" />
 								<Tab label="Payments" value="payments" icon={<Iconify icon="solar:wallet-money-bold" width={20} />} iconPosition="start" />
-								<Tab label="Interested" value="interested" icon={<Iconify icon="solar:heart-angle-bold" width={20} />} iconPosition="start" />
-								<Tab label="Matches" value="matches" icon={<Iconify icon="solar:users-group-two-rounded-bold" width={20} />} iconPosition="start" />
+								{/* <Tab label="Interested" value="interested" icon={<Iconify icon="solar:heart-angle-bold" width={20} />} iconPosition="start" /> */}
+								{/* <Tab label="Matches" value="matches" icon={<Iconify icon="solar:users-group-two-rounded-bold" width={20} />} iconPosition="start" /> */}
+								<Tab label="Spark History" value="spark_history" icon={<Iconify icon="solar:star-fall-bold" width={20} />} iconPosition="start" />
 							</Tabs>
 						</Card>
 
 						{currentTab === "profile" && <ProfileTab user={user} />}
 						{currentTab === "timeline" && <TimelineTab />}
-						{currentTab === "dates" && <DatesTab />}
-						{currentTab === "payments" && <PaymentsTab />}
+						{currentTab === "dates" && <DatesTab dates={user?.dates} />}
+						{currentTab === "payments" && <PaymentsTab payments={user?.payments} />}
 						{currentTab === "interested" && <InterestedTab />}
 						{currentTab === "matches" && <MatchesTab />}
+						{currentTab === "spark_history" && <SparkHistoryTab user={user} />}
+						{currentTab === "kyc" && <KycTab user={user} setUser={setUser} />}
 					</Stack>
 				</Grid>
 			</Grid>
+
+			{kycDialogOpen && (
+				<UserKycModel
+					open={kycDialogOpen}
+					onClose={() => setKycDialogOpen(false)}
+					userId={id}
+					currentStatus={user?.document_verification_status ?? 1}
+					cdSuccess={() => {
+						dispatch(
+							GetAdminUserDetailsServices(id, (resData) => {
+								if (resData?.success) {
+									setUser(resData?.data?.user || {});
+								}
+							}),
+						);
+					}}
+				/>
+			)}
+			{noteModelOpen && <UserNoteModel open={noteModelOpen} onClose={() => setNoteModelOpen(false)} userId={id} />}
 		</Stack>
 	);
 };

@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import CustomDrawer from "src/components/common/CustomDrawer";
 import { AutoCompleteSelectMenu, TextFieldForm } from "src/components/common/inputs";
+import { GetAdminUsersListServices } from "src/services/Users.Services";
 import { useFormik } from "formik";
 
 const STATUS_OPTIONS = [
@@ -16,9 +18,22 @@ const PROVIDER_OPTIONS = [
 ];
 
 export default function PaymentFilter({ open, onClose, filters, setFilters, onApply }) {
+	const dispatch = useDispatch();
+	const [usersList, setUsersList] = useState([]);
+
+	useEffect(() => {
+		if (open) {
+			dispatch(
+				GetAdminUsersListServices({ per_page: 500, page: 1 }, (res) => {
+					if (res?.success) setUsersList(res?.data?.users || []);
+				})
+			);
+		}
+	}, [open, dispatch]);
+
 	const formik = useFormik({
 		initialValues: {
-			user_id: filters.user_id ?? "",
+			user_id: filters.user_id ? Number(filters.user_id) : "",
 			status: filters.status ?? "",
 			provider: filters.provider ?? "",
 			payment_intent_id: filters.payment_intent_id ?? "",
@@ -48,7 +63,7 @@ export default function PaymentFilter({ open, onClose, filters, setFilters, onAp
 		<CustomDrawer open={open} onClose={onClose} title="Filter Payments" width={460}>
 			<form onSubmit={formik.handleSubmit} noValidate>
 				<Stack spacing={3}>
-					<TextFieldForm formik={formik} label="User ID" field="user_id" placeholder="Enter User ID" type="number" required={false} />
+					<AutoCompleteSelectMenu formik={formik} label="User" field="user_id" placeholder="Select User" menuList={usersList} valueKey="id" labelKey="name" required={false} />
 
 					<AutoCompleteSelectMenu formik={formik} label="Status" field="status" placeholder="Select Status" menuList={STATUS_OPTIONS} valueKey="id" labelKey="name" required={false} />
 

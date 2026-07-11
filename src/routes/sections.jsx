@@ -22,6 +22,7 @@ export const ResetPassword = lazy(() => import("../Apps/Auth/ResetPassword"));
 export const Dashboard = lazy(() => import("../Apps/Dashboard"));
 export const UsersList = lazy(() => import("../Apps/Users"));
 export const UserDetails = lazy(() => import("../Apps/Users/UserDetails"));
+export const AccountDeletionRequests = lazy(() => import("../Apps/Users/AccountDeletionRequests"));
 
 export const LocationsList = lazy(() => import("../Apps/Locations"));
 export const QuestionsList = lazy(() => import("../Apps/Questions"));
@@ -35,6 +36,7 @@ export const UserReportsList = lazy(() => import("../Apps/UserReports"));
 export const UserReportDetails = lazy(() => import("../Apps/UserReports/UserReportDetails"));
 export const PaymentList = lazy(() => import("../Apps/Payments"));
 export const Profile = lazy(() => import("../Apps/Profile"));
+export const Settings = lazy(() => import("../Apps/Settings"));
 export const VerificationList = lazy(() => import("../Apps/Verification"));
 export const VerificationDetails = lazy(() => import("../Apps/Verification/VerificationDetails"));
 export const ComplianceList = lazy(() => import("../Apps/Compliance"));
@@ -45,6 +47,9 @@ export const AuditLogsList = lazy(() => import("../Apps/AuditLogs"));
 export const AuditLogDetails = lazy(() => import("../Apps/AuditLogs/AuditLogDetails"));
 export const NotesList = lazy(() => import("../Apps/Notes"));
 export const VenuesList = lazy(() => import("../Apps/Venues"));
+export const UnfreezeRequestsList = lazy(() => import("../Apps/UnfreezeRequests"));
+export const Revenue = lazy(() => import("../Apps/Revenue"));
+export const RolesPermissions = lazy(() => import("../Apps/RolesPermissions"));
 
 export default function Router() {
 	const location = useLocation();
@@ -61,6 +66,7 @@ export default function Router() {
 	const Rotes = [
 		{path: AdminRoutes?.Dashboard, element: <Dashboard />},
 		{path: AdminRoutes?.UsersList, element: <UsersList />},
+		{path: AdminRoutes?.AccountDeletionRequests, element: <AccountDeletionRequests />},
 		{path: AdminRoutes?.UserDetails, element: <UserDetails />},
 		{path: AdminRoutes?.LocationList, element: <LocationsList />},
 		{path: AdminRoutes?.QuestionList, element: <QuestionsList />},
@@ -73,6 +79,7 @@ export default function Router() {
 		{path: AdminRoutes?.UserReportDetails, element: <UserReportDetails />},
 		{path: AdminRoutes?.PaymentList, element: <PaymentList />},
 		{path: AdminRoutes?.Profile, element: <Profile />},
+		{path: AdminRoutes?.Settings, element: <Settings />},
 		{path: AdminRoutes?.VerificationList, element: <VerificationList />},
 		{path: AdminRoutes?.VerificationDetails, element: <VerificationDetails />},
 		{path: AdminRoutes?.ComplianceList, element: <ComplianceList />},
@@ -83,6 +90,9 @@ export default function Router() {
 		{path: AdminRoutes?.AuditLogDetails, element: <AuditLogDetails />},
 		{path: AdminRoutes?.NotesList, element: <NotesList />},
 		{path: AdminRoutes?.VenuesList, element: <VenuesList />},
+		{path: AdminRoutes?.UnfreezeRequestsList, element: <UnfreezeRequestsList />},
+		{path: AdminRoutes?.Revenue, element: <Revenue />},
+		{path: AdminRoutes?.RolesPermissions, element: <RolesPermissions />},
 	];
 
 	const routes = useRoutes([

@@ -9,19 +9,19 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 import Avatar from "@mui/material/Avatar";
-import {useTheme, alpha} from "@mui/material/styles";
+import {useTheme} from "@mui/material/styles";
 import {Table} from "antd";
 
 import Iconify from "src/components/common/iconify";
 import CustomPagination from "src/components/common/CustomPagination";
 import CustomSearchInput from "src/components/common/CustomSearchInput";
-import CustomTooltip from "src/components/common/CustomTooltip";
 import {CustomActionIconButton} from "src/components/common/CustomActionIconButton";
 
 import {GetAdminVenuesListServices, GetAdminVenuesExportServices, DeleteAdminVenueServices} from "src/services/Venues.Services";
 import VenueFilter from "./VenueFilter";
 import VenueModel from "./VenueModel";
 import {sweetAlertQuestion, sweetAlertSuccess, sweetAlerts} from "src/utils/sweet-alerts";
+import {getErrorMessage} from "src/utils/utils";
 
 export default function VenuesList() {
 	const theme = useTheme();
@@ -32,14 +32,13 @@ export default function VenuesList() {
 	const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || 10);
 	const [totalRecode, setTotalRecode] = useState(0);
 	const [search, setSearch] = useState(searchParams.get("search") || "");
-	const [field, setField] = useState(searchParams.get("field") || null);
-	const [order, setOrder] = useState(searchParams.get("order") || null);
 
 	const [list, setList] = useState([]);
 	const [apiFlag, setApiFlag] = useState(false);
 	const [loadingLoader, setLoadingLoader] = useState(false);
 
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
+
 	const [filters, setFilters] = useState({
 		category: searchParams.get("category") || "",
 		parking: searchParams.get("parking") || "",
@@ -57,8 +56,6 @@ export default function VenuesList() {
 			const payLoad = {
 				page,
 				per_page: pageSize,
-				field,
-				order,
 				search,
 				...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined)),
 			};
@@ -78,32 +75,31 @@ export default function VenuesList() {
 			);
 		}
 		apiCallAction();
-	}, [dispatch, apiFlag, search, page, pageSize, field, order, filters]);
+	}, [dispatch, apiFlag, search, page, pageSize, filters]);
 
 	useEffect(() => {
 		setSearchParams({
 			page: page.toString(),
 			pageSize: pageSize.toString(),
 			...(search && {search}),
-			...(field && {field}),
-			...(order && {order}),
 			...(filters.category !== "" && {category: filters.category}),
 			...(filters.parking !== "" && {parking: filters.parking}),
 			...(filters.security !== "" && {security: filters.security}),
 			...(filters.is_paid !== "" && {is_paid: filters.is_paid}),
 		});
-	}, [setSearchParams, page, pageSize, search, field, order, filters]);
+	}, [setSearchParams, page, pageSize, search, filters]);
 
 	const handleDelete = (id) => {
-		sweetAlertQuestion("Are you sure you want to delete this venue?", "You won't be able to revert this!", "warning", "Yes, delete it!").then((res) => {
-			if (res.isConfirmed) {
+		sweetAlertQuestion("Are you sure you want to delete this venue?", "You won't be able to revert this!").then((res) => {
+			if (res) {
 				dispatch(
 					DeleteAdminVenueServices(id, (resp) => {
 						if (resp?.success) {
 							sweetAlertSuccess("Venue deleted successfully!");
 							setApiFlag(!apiFlag);
 						} else {
-							sweetAlerts("error", resp?.message || "Failed to delete venue");
+							const error = getErrorMessage(resp);
+							sweetAlerts("error", error);
 						}
 					}),
 				);
@@ -117,10 +113,10 @@ export default function VenuesList() {
 			key: "title",
 			width: 250,
 			render: (_, record) => (
-				<Stack direction="row" alignItems="center" spacing={2}>
-					<Avatar src={record?.image_url} alt={record?.title} variant="rounded" sx={{ width: 48, height: 48 }} />
+				<Stack direction="row" alignItems="center" spacing={1}>
+					<Avatar src={record?.image_url} alt={record?.title} variant="rounded" />
 					<Box>
-						<Typography variant="subtitle2" color="text.primary" noWrap sx={{fontWeight: 700}}>
+						<Typography variant="subtitle2" color="text.primary" noWrap>
 							{record?.title}
 						</Typography>
 						<Typography variant="caption" sx={{color: "text.secondary"}}>
@@ -146,36 +142,29 @@ export default function VenuesList() {
 			),
 		},
 		{
-			title: "Amenities",
-			key: "amenities",
-			width: 150,
-			render: (_, record) => (
-				<Stack direction="row" spacing={0.5} flexWrap="wrap">
-					{Boolean(record.parking) && <Chip label="Parking" size="small" variant="outlined" color="primary" sx={{height: 20, fontSize: "0.65rem"}} />}
-					{Boolean(record.security) && <Chip label="Security" size="small" variant="outlined" color="secondary" sx={{height: 20, fontSize: "0.65rem"}} />}
-				</Stack>
-			),
-		},
-		{
 			title: "Type",
 			key: "is_paid",
 			width: 100,
+			render: (_, record) => <Chip label={record.is_paid ? "Paid" : "Free"} variant="filled" color={record.is_paid ? "error" : "success"} />,
+		},
+		{
+			title: "Amenities",
+			key: "amenities",
+			width: 200,
 			render: (_, record) => (
-				<Chip 
-					label={Boolean(record.is_paid) ? "Paid" : "Free"} 
-					size="small" 
-					variant="outlined" 
-					color={Boolean(record.is_paid) ? "error" : "success"} 
-					sx={{height: 20, fontSize: "0.65rem"}} 
-				/>
+				<Stack direction="row" spacing={1} flexWrap="wrap">
+					{Boolean(record.parking) && <Chip label="Parking" variant="outlined" color="primary" />}
+					{Boolean(record.security) && <Chip label="Security" variant="outlined" color="secondary" />}
+				</Stack>
 			),
 		},
+
 		{
 			title: "Availability",
 			key: "availability",
 			width: 150,
 			render: (_, record) => (
-				<Typography variant="subtitle2" sx={{fontWeight: 600, color: "text.secondary"}}>
+				<Typography variant="caption" sx={{color: "text.secondary"}}>
 					{record?.start_time} - {record?.end_time}
 				</Typography>
 			),
@@ -190,7 +179,7 @@ export default function VenuesList() {
 					<CustomActionIconButton
 						tooltip="Edit"
 						children={<Iconify icon="solar:pen-bold-duotone" />}
-						color="success"
+						color="info"
 						onClick={() => {
 							setSelectedVenue(record);
 							setIsModelOpen(true);
@@ -214,55 +203,51 @@ export default function VenuesList() {
 					</Typography>
 				</Box>
 
-				<Box>
-					<Stack spacing={1.5} direction={{xs: "column", md: "row"}}>
-						<Button
-							onClick={() => {
-								const payLoad = {search, ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined))};
-								setLoadingLoader(true);
-								dispatch(
-									GetAdminVenuesExportServices(payLoad, (res) => {
-										setLoadingLoader(false);
-										if (res?.data) {
-											const url = window.URL.createObjectURL(new Blob([res.data]));
-											const link = document.createElement("a");
-											link.href = url;
-											link.setAttribute("download", "venues_export.csv");
-											document.body.appendChild(link);
-											link.click();
-											link.remove();
-											sweetAlertSuccess("Export downloaded successfully");
-										} else {
-											sweetAlerts("error", "Failed to export data");
-										}
-									}),
-								);
-							}}
-							disabled={loadingLoader}
-							variant="outlined"
-							color="primary"
-							startIcon={<Iconify icon="solar:download-bold-duotone" />}
-							sx={{borderRadius: 2, fontWeight: 800}}>
-							Export CSV
-						</Button>
-						<Button
-							color="primary"
-							variant="contained"
-							startIcon={<Iconify icon="solar:add-circle-bold-duotone" />}
-							sx={{borderRadius: 2, fontWeight: 800}}
-							onClick={() => {
-								setSelectedVenue({});
-								setIsModelOpen(true);
-							}}>
-							Add Venue
-						</Button>
-					</Stack>
-				</Box>
+				<Stack spacing={1.5} direction={{xs: "column", md: "row"}}>
+					<Button
+						onClick={() => {
+							const payLoad = {search, ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined))};
+							setLoadingLoader(true);
+							dispatch(
+								GetAdminVenuesExportServices(payLoad, (res) => {
+									setLoadingLoader(false);
+									if (res?.data) {
+										const url = window.URL.createObjectURL(new Blob([res.data]));
+										const link = document.createElement("a");
+										link.href = url;
+										link.setAttribute("download", "venues_export.csv");
+										document.body.appendChild(link);
+										link.click();
+										link.remove();
+										sweetAlertSuccess("Export downloaded successfully");
+									} else {
+										sweetAlerts("error", "Failed to export data");
+									}
+								}),
+							);
+						}}
+						disabled={loadingLoader}
+						variant="outlined"
+						color="primary"
+						startIcon={<Iconify icon="solar:download-bold-duotone" />}>
+						Export CSV
+					</Button>
+					<Button
+						color="primary"
+						variant="contained"
+						startIcon={<Iconify icon="solar:add-circle-bold-duotone" />}
+						onClick={() => {
+							setSelectedVenue({});
+							setIsModelOpen(true);
+						}}>
+						Add Venue
+					</Button>
+				</Stack>
 			</Stack>
 
 			<Card sx={{borderRadius: 4, boxShadow: theme.shadows[2], overflow: "hidden"}}>
 				<Stack spacing={2}>
-					<Stack spacing={2} direction="row" sx={{m: 2, px: 2, pt: 2, pb: 1, justifyContent: "space-between"}}>
+					<Stack spacing={2} direction="row" sx={{px: 2, pt: 2, justifyContent: "space-between"}}>
 						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={setSearch} placeholder="Search by name or address..." width={{xs: "100%", md: 400}} />
 						<Stack direction="row" spacing={1}>
 							{(() => {
@@ -275,50 +260,28 @@ export default function VenuesList() {
 							})()}
 						</Stack>
 					</Stack>
-					<Box
-						sx={{
-							"& .ant-table-wrapper": {borderRadius: 0},
-							"& .ant-table": {background: "transparent"},
-							"& .ant-table-thead > tr > th": {
-								background: alpha(theme.palette.text.primary, 0.02),
-								fontWeight: 800,
-								color: "text.secondary",
-								borderBottom: `1px dashed ${theme.palette.divider}`,
-								textTransform: "uppercase",
-								fontSize: "0.75rem",
-							},
-							"& .ant-table-tbody > tr > td": {
-								borderBottom: `1px dashed ${theme.palette.divider}`,
-							},
-							"& .ant-table-tbody > tr:hover > td": {
-								background: alpha(theme.palette.primary.main, 0.01),
-							},
-							"& .ant-table-tbody > tr:last-child > td": {
-								borderBottom: "none",
-							},
-						}}>
-						<Table
-							className="custom-ant-table"
-							columns={
-								!loadingLoader
-									? columns
-									: columns.map((col) => ({
-											...col,
-											render: () => <Skeleton variant="" animation="wave" sx={{width: "100%", height: 25, borderRadius: 1}} />,
-										}))
-							}
-							dataSource={
-								!loadingLoader
-									? list
-									: [...Array(pageSize >= totalRecode ? totalRecode : pageSize)].map((_, i) => ({
-											key: i,
-										}))
-							}
-							scroll={{x: "max-content"}}
-							pagination={false}
-							rowKey="id"
-						/>
-					</Box>
+
+					<Table
+						className="custom-ant-table"
+						columns={
+							!loadingLoader
+								? columns
+								: columns.map((col) => ({
+										...col,
+										render: () => <Skeleton variant="text" animation="wave" height={40} />,
+									}))
+						}
+						dataSource={
+							!loadingLoader
+								? list
+								: [...Array(pageSize >= totalRecode ? totalRecode : pageSize)].map((_, i) => ({
+										key: i,
+									}))
+						}
+						scroll={{x: "max-content"}}
+						pagination={false}
+						rowKey="id"
+					/>
 
 					<CustomPagination
 						current={page}

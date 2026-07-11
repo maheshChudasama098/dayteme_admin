@@ -7,9 +7,10 @@ import Typography from "@mui/material/Typography";
 
 import {Dynamic404Illustration} from "src/components/common/Illustrations";
 import {imageUlr} from "src/constance";
-import {AuthRoutes} from "src/routes/routes";
+import {AdminRoutes, AuthRoutes} from "src/routes/routes";
 
 export default function NotFound() {
+	const token = localStorage.getItem("token");
 	return (
 		<Box
 			sx={{
@@ -40,7 +41,7 @@ export default function NotFound() {
 				</Typography>
 
 				<Button
-					href={imageUlr + AuthRoutes.Login}
+					href={imageUlr + `${token ? AdminRoutes.Dashboard : AuthRoutes.Login}`}
 					variant="contained"
 					size="large"
 					color="primary"

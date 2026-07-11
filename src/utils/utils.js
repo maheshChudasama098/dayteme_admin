@@ -118,7 +118,7 @@ export function fTruncateWords(text, maxChars = 30) {
 }
 
 export function fDateTime(date) {
-	return date ? moment(date).format("DD/MM/YYYY - HH:mm A") : "N/A";
+	return date ? moment(date).format("DD MMM YYYY - HH:mm A") : "N/A";
 }
 
 export function fDate(date) {
@@ -127,4 +127,32 @@ export function fDate(date) {
 
 export function fAge(date) {
 	return date ? moment().diff(moment(date), "years") : "0";
+}
+
+export function fDuration(date) {
+	if (!date) return "N/A";
+
+	const now = moment();
+	const then = moment(date);
+
+	const seconds = now.diff(then, "seconds");
+	if (seconds < 60) return `${seconds} sec ago`;
+
+	const minutes = now.diff(then, "minutes");
+	if (minutes < 60) return `${minutes} min ago`;
+
+	const hours = now.diff(then, "hours");
+	if (hours < 24) return `${hours} hr ago`;
+
+	const days = now.diff(then, "days");
+	if (days < 7) return `${days} day${days > 1 ? "s" : ""} ago`;
+
+	const weeks = now.diff(then, "weeks");
+	if (weeks < 5) return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
+
+	const months = now.diff(then, "months");
+	if (months < 12) return `${months} month${months > 1 ? "s" : ""} ago`;
+
+	const years = now.diff(then, "years");
+	return `${years} year${years > 1 ? "s" : ""} ago`;
 }

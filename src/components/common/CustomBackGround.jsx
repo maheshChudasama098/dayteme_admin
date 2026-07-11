@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import {useTheme} from "@mui/material/styles";
 import Grid from "@mui/material/Grid";
 import {alpha, Stack} from "@mui/system";
-import {Card, Typography} from "@mui/material";
+import {Avatar, Card, Typography} from "@mui/material";
 import {defaultImageUrl} from "../../utils/utils";
 import {bgGradient} from "../../theme/css";
 
@@ -25,26 +25,35 @@ export const CustomBackGround = ({rightContent, imageName, headingText, subText}
 			}}>
 			<Grid container sx={{height: "100vh"}} spacing={0}>
 				<Grid
-					size={{xs: 12, md: 6, lg: 4.5}}
+					size={{xs: 12, md: 6, lg: 5}}
 					sx={{
 						display: {xs: "none", md: "block"},
 						height: "100%",
-						// backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.30)), url(${defaultImageUrl(`/assets/background/${imageName}`)})`,
+						backgroundImage: `linear-gradient(rgba(0, 0, 0, 55), rgba(0, 0, 0, 0)), url(${defaultImageUrl(`/assets/background/${imageName}`)})`,
 						// backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(https://images.unsplash.com/photo-1557682250-33bd709cbe85)`,
 						backgroundSize: "cover",
 						backgroundPosition: "center",
 						backgroundRepeat: "no-repeat",
 					}}>
-					<Stack justifyContent="center" alignItems="center" sx={{height: "100vh"}}>
-						<Box sx={{px: 4, maxWidth: 500}}>
-							<Stack spacing={1} justifyContent="center" alignItems="center">
-								<Typography variant="h3" align="center" color="primary.main">
+					<Stack alignItems="center" sx={{height: "100vh"}}>
+						<Box sx={{px: 4}}>
+							<Stack spacing={1} justifyContent="center" alignItems="center" sx={{mt: 4}}>
+								<Avatar
+									sx={{
+										width: 120,
+										height: 120,
+										boxShadow: 0,
+									}}
+									src={defaultImageUrl(`/assets/logo.png`)}
+									variant="rounded"
+								/>
+								<Typography variant="h4" align="center" color="text.primary" justifyContent="end">
 									{headingText}
 								</Typography>
-								<Typography align="center" variant="body1" color="grey.600">
+								<Typography align="center" variant="body2" color="text.secondary">
 									{subText}
 								</Typography>
-								<Box
+								{/* <Box
 									component="img"
 									src={defaultImageUrl(`/assets/background/${imageName}`)}
 									alt="illustration"
@@ -52,16 +61,17 @@ export const CustomBackGround = ({rightContent, imageName, headingText, subText}
 										height: "auto",
 										width: "100%",
 									}}
-								/>
+								/>  */}
 							</Stack>
 						</Box>
 					</Stack>
 				</Grid>
 
 				<Grid
-					size={{xs: 12, md: 6, lg: 7.5}}
+					size={{xs: 12, md: 6, lg: 7}}
 					sx={{
 						background: theme.palette.background.paper,
+						// background: "#0f0509",
 						height: 1,
 					}}>
 					<Card
@@ -69,7 +79,8 @@ export const CustomBackGround = ({rightContent, imageName, headingText, subText}
 							height: 1,
 							borderRadius: 0,
 							boxShadow: 3,
-							background: theme.palette.background.paper,
+							background: theme.palette.background.default,
+							// background: "#0f0509",
 						}}>
 						<Stack justifyContent="center" sx={{height: 1}} spacing={2}>
 							<Box

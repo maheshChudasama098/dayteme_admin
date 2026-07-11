@@ -113,128 +113,113 @@ function ForgotPassword() {
 
 	return (
 		<CustomBackGround
-			imageName="bg3.png"
+			imageName="bg4.png"
 			headingText="Manage the job"
 			subText="More effectively with optimized workflows."
 			rightContent={
 				<Stack spacing={1.5}>
-					<Avatar
-						sx={{
-							// backgroundColor: alpha(theme?.palette?.primary?.main, 0.15),
-							backgroundColor: theme?.palette?.primary?.main,
-							width: 55,
-							height: 55,
-							boxShadow: 1,
-							// borderRadius: 20,
-						}}
-						variant="rounded">
-						<Iconify icon="mingcute:love-fill" width={30} />
-					</Avatar>
+					<Typography variant="h4">{isEmailSent ? "Verify Reset Code" : "Forgot Password"}</Typography>
+					<Typography variant="body2" sx={{color: "text.secondary"}}>
+						{isEmailSent ? "Enter the 6 digit code sent to your email to continue." : "Enter your workspace email and we will send you a reset code."}
+					</Typography>
 
-					<Stack spacing={1.5}>
-						<Typography variant="h4">{isEmailSent ? "Verify Reset Code" : "Forgot Password"}</Typography>
-						<Typography variant="body2" sx={{color: "text.secondary"}}>
-							{isEmailSent ? "Enter the 6 digit code sent to your email to continue." : "Enter your workspace email and we will send you a reset code."}
-						</Typography>
+					{error && <Alert severity="error">{error}</Alert>}
+					{!isEmailSent ? (
+						<Formik
+							enableReinitialize
+							initialValues={{email: ""}}
+							validationSchema={Yup.object().shape({
+								email: Yup.string().email("Invalid email address").required("Email is required"),
+							})}
+							onSubmit={handleForgotPassword}>
+							{(props) => (
+								<Form autoComplete="off" noValidate>
+									<Stack spacing={2}>
+										<TextFieldForm
+											formik={props}
+											label="Email"
+											field="email"
+											placeholder="Enter your email"
+											InputLabelProps={{
+												shrink: true,
+											}}
+											slotProps={{
+												input: {
+													startAdornment: (
+														<InputAdornment>
+															<i className="fa-solid fa-envelope fa-lg" />
+														</InputAdornment>
+													),
+												},
+											}}
+										/>
 
-						{error && <Alert severity="error">{error}</Alert>}
-						{!isEmailSent ? (
-							<Formik
-								enableReinitialize
-								initialValues={{email: ""}}
-								validationSchema={Yup.object().shape({
-									email: Yup.string().email("Invalid email address").required("Email is required"),
-								})}
-								onSubmit={handleForgotPassword}>
-								{(props) => (
-									<Form autoComplete="off" noValidate>
-										<Stack spacing={2}>
-											<TextFieldForm
-												formik={props}
-												label="Email"
-												field="email"
-												placeholder="Enter your email"
-												InputLabelProps={{
-													shrink: true,
-												}}
-												slotProps={{
-													input: {
-														startAdornment: (
-															<InputAdornment>
-																<i className="fa-solid fa-envelope fa-lg" />
-															</InputAdornment>
-														),
-													},
-												}}
-											/>
+										<Button type="submit" variant="contained" color="primary" fullWidth disabled={formSubmitLoader} sx={{py: 1.5}}>
+											Send Reset Code
+										</Button>
+									</Stack>
+								</Form>
+							)}
+						</Formik>
+					) : (
+						<Formik
+							enableReinitialize
+							initialValues={{code: ""}}
+							validationSchema={Yup.object().shape({
+								code: Yup.string()
+									.required("Code is required")
+									.matches(/^\d{6}$/, "OTP must be 6 digits"),
+							})}
+							onSubmit={handleVerifyCode}>
+							{(props) => (
+								<Form autoComplete="off" noValidate>
+									<Stack spacing={1.5}>
+										<OTPFieldForm formik={props} label="code" field="code" />
+										<Typography
+											variant="body2"
+											sx={{
+												cursor: cooldownSeconds > 0 ? "not-allowed" : "pointer",
+												fontWeight: 600,
+												opacity: cooldownSeconds > 0 ? 0.5 : 1,
+												color: cooldownSeconds > 0 ? "text.disabled" : "primary.main",
+											}}
+											onClick={() => {
+												if (cooldownSeconds === 0) {
+													handleResendOTP({email});
+												}
+											}}>
+											<Stack direction={"row"} sx={{alignItems: "center"}}>
+												<Iconify icon="tabler:reload" />
+												{cooldownSeconds > 0 ? `Resend Code (${cooldownSeconds}s)` : "Resend Code"}
+											</Stack>
+										</Typography>
+										<Button type="submit" variant="contained" color="primary" fullWidth disabled={formSubmitLoader} sx={{py: 1.5}}>
+											Verify Code
+										</Button>
+									</Stack>
+								</Form>
+							)}
+						</Formik>
+					)}
 
-											<Button type="submit" variant="contained" color="primary" fullWidth disabled={formSubmitLoader} sx={{py: 1.5}}>
-												Send Reset Code
-											</Button>
-										</Stack>
-									</Form>
-								)}
-							</Formik>
-						) : (
-							<Formik
-								enableReinitialize
-								initialValues={{code: ""}}
-								validationSchema={Yup.object().shape({
-									code: Yup.string()
-										.required("Code is required")
-										.matches(/^\d{6}$/, "OTP must be 6 digits"),
-								})}
-								onSubmit={handleVerifyCode}>
-								{(props) => (
-									<Form autoComplete="off" noValidate>
-										<Stack spacing={1.5}>
-											<OTPFieldForm formik={props} label="code" field="code" />
-											<Typography
-												variant="body2"
-												sx={{
-													cursor: cooldownSeconds > 0 ? "not-allowed" : "pointer",
-													fontWeight: 600,
-													opacity: cooldownSeconds > 0 ? 0.5 : 1,
-													color: cooldownSeconds > 0 ? "text.disabled" : "primary.main",
-												}}
-												onClick={() => {
-													if (cooldownSeconds === 0) {
-														handleResendOTP({email});
-													}
-												}}>
-												<Stack direction={"row"} sx={{alignItems: "center"}}>
-													<Iconify icon="tabler:reload" />
-													{cooldownSeconds > 0 ? `Resend Code (${cooldownSeconds}s)` : "Resend Code"}
-												</Stack>
-											</Typography>
-											<Button type="submit" variant="contained" color="primary" fullWidth disabled={formSubmitLoader} sx={{py: 1.5}}>
-												Verify Code
-											</Button>
-										</Stack>
-									</Form>
-								)}
-							</Formik>
-						)}
-
-						<Typography variant="body2" sx={{color: "text.secondary"}}>
-							Remembered your password?{" "}
-							<Link
-								style={{
-									color: theme.palette.primary.main,
-									...theme?.typography?.body2,
-									fontWeight: 600,
-								}}
-								onMouseEnter={(e) => {
-									e.target.style.textDecoration = "underline";
-								}}
-								onMouseLeave={(e) => {
-									e.target.style.textDecoration = "none";
-								}}
-								to={AuthRoutes.Login}>
-								Back to login
-							</Link>
-						</Typography>
-					</Stack>
+					<Typography variant="body2" sx={{color: "text.secondary"}}>
+						Remembered your password?{" "}
+						<Link
+							style={{
+								color: theme.palette.primary.main,
+								...theme?.typography?.body2,
+								fontWeight: 600,
+							}}
+							onMouseEnter={(e) => {
+								e.target.style.textDecoration = "underline";
+							}}
+							onMouseLeave={(e) => {
+								e.target.style.textDecoration = "none";
+							}}
+							to={AuthRoutes.Login}>
+							Back to login
+						</Link>
+					</Typography>
 				</Stack>
 			}
 		/>

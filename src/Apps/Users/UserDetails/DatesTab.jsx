@@ -6,158 +6,197 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
+import Avatar from "@mui/material/Avatar";
 import {useTheme, alpha} from "@mui/material/styles";
+import moment from "moment";
 
 import Iconify from "src/components/common/iconify";
+import {fDate, fDateTime} from "src/utils/utils";
 
-const dateImages = [
-	"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=600",
-	"https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600",
-	"https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=600",
-	"https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=600",
-	"https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=600",
-];
+const getStatusColor = (status) => {
+	switch (status) {
+		case 1: // Requested
+			return "info";
+		case 2: // Accepted
+			return "primary";
+		case 3: // Completed
+			return "success";
+		case 4: // Rejected
+			return "error";
+		default:
+			return "secondary";
+	}
+};
 
-const mockDates = Array.from({length: 5}).map((_, i) => ({
-	id: i + 1,
-	image: dateImages[i % dateImages.length],
-	isBoosted: i % 2 === 0,
-	title: `Date Setup #${i + 213}`,
-	subtitle: "131123123sasdasd",
-	date: "Monday, Jun 29",
-	time: "10:35 - 12:40",
-	locationTitle: "The Velvet Room",
-	locationAddress: "124 Cocktail Blvd, Midtown",
-	budget: "$50-$100",
-	treating: "I'm treating",
-	dressCode: "Smart Casual",
-	visibility: "Discoverable",
-	genderPref: "Non-binary",
-	agePref: "44-61 yrs",
-	trustPref: "Trusted",
-}));
+const formatTime = (timeStr) => {
+	if (!timeStr) return "";
+	return moment(timeStr, "HH:mm:ss").format("hh:mm A");
+};
 
-const DatesTab = () => {
+const DatesTab = ({dates = []}) => {
 	const theme = useTheme();
 
+	if (!dates || dates.length === 0) {
+		return (
+			<Card sx={{p: 5, textAlign: "center", borderRadius: 4, border: "1px dashed", borderColor: "divider", boxShadow: "none"}}>
+				<Stack alignItems="center" spacing={2}>
+					<Box sx={{p: 2, borderRadius: "50%", bgcolor: alpha(theme.palette.text.disabled, 0.1), color: "text.disabled", display: "flex", alignItems: "center", justifyContent: "center"}}>
+						<Iconify icon="solar:calendar-date-bold-duotone" width={48} />
+					</Box>
+					<Box>
+						<Typography variant="h6" sx={{fontWeight: 800, mb: 0.5}}>
+							No Dates Found
+						</Typography>
+						<Typography variant="body2" color="text.secondary">
+							This user hasn't scheduled any dates yet.
+						</Typography>
+					</Box>
+				</Stack>
+			</Card>
+		);
+	}
+
 	return (
-		<Grid container spacing={2}>
-			{mockDates.map((date) => (
-				<Grid size={{xs: 12, md: 6}} key={date.id}>
-					<Card
-						sx={{
-							display: "flex",
-							flexDirection: "column",
-							height: "100%",
-							boxShadow: theme.shadows[1],
-							transition: "transform 0.2s ease, box-shadow 0.2s ease",
-							"&:hover": {
-								transform: "translateY(-4px)",
-								boxShadow: theme.shadows[8],
-							},
-						}}>
-						{/* Top Image */}
-						<Box sx={{position: "relative", width: "100%", height: 180}}>
-							<Box component="img" src={date.image} alt={date.title} sx={{width: "100%", height: "100%", objectFit: "cover"}} />
-							{date.isBoosted && (
-								<Chip
-									icon={<Iconify icon="mingcute:fire-fill" width={14} />}
-									label="Boosted"
-									size="small"
-									sx={{
-										position: "absolute",
-										top: 12,
-										left: 12,
-										backgroundColor: "#e81c4f",
-										color: "#fff",
-										fontWeight: "bold",
-										fontSize: "0.7rem",
-										"& .MuiChip-icon": {color: "#fff"},
-									}}
-								/>
-							)}
-						</Box>
+		<Grid container spacing={3}>
+			{dates.map((dateItem) => {
+				const statusColor = getStatusColor(dateItem.status);
+				const statusLabel = dateItem.status_label || "Unknown";
+				const isCreator = dateItem.role === "creator";
 
-						{/* Bottom Details */}
-						<Box sx={{p: 2.5, flex: 1, display: "flex", flexDirection: "column"}}>
-							<Stack direction="row" justifyContent="space-between" alignItems="center" sx={{mb: 2}}>
-								<Box>
-									<Typography variant="h6" sx={{fontWeight: 800, lineHeight: 1.2}}>
-										{date.title}
-									</Typography>
-									<Typography variant="caption" sx={{color: "text.secondary", fontWeight: 600}}>
-										ID: {date.subtitle}
-									</Typography>
-								</Box>
-							</Stack>
+				return (
+					<Grid size={{xs: 12, md: 6}} key={dateItem.id}>
+						<Card
+							sx={{
+								p: 3,
+								borderRadius: 4,
+								boxShadow: theme.shadows[1],
+								position: "relative",
+								overflow: "hidden",
+								transition: "all 0.3s ease",
+								border: "1px solid",
+								borderColor: "divider",
+								"&:hover": {
+									transform: "translateY(-4px)",
+									boxShadow: theme.shadows[8],
+								},
+							}}>
+							{/* Background decorative icon */}
+							<Iconify
+								icon="solar:heart-bold-duotone"
+								sx={{
+									position: "absolute",
+									right: -20,
+									bottom: -20,
+									width: 130,
+									height: 130,
+									opacity: 0.03,
+									transform: "rotate(-15deg)",
+									pointerEvents: "none",
+									color: `${statusColor}.main`,
+								}}
+							/>
 
-							<Stack spacing={2} sx={{mb: 2}}>
-								<Stack direction="row" spacing={1.5} alignItems="center">
-									<Box sx={{p: 0.8, borderRadius: 2, backgroundColor: alpha(theme.palette.primary.main, 0.1), display: "flex"}}>
-										<Iconify icon="solar:calendar-bold" width={18} sx={{color: "primary.main"}} />
-									</Box>
-									<Typography variant="body2" sx={{fontSize: "0.85rem", fontWeight: 600}}>
-										{date.date}{" "}
-										<Box component="span" sx={{color: "text.secondary", ml: 0.5, fontWeight: 400}}>
-											({date.time})
+							<Stack spacing={2.5} sx={{position: "relative", zIndex: 1}}>
+								{/* Header section */}
+								<Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+									<Box sx={{display: "flex", gap: 2, alignItems: "center"}}>
+										<Avatar sx={{bgcolor: alpha(theme.palette[statusColor].main, 0.1), color: `${statusColor}.main`, width: 56, height: 56, borderRadius: 2.5}}>
+											<Iconify icon="solar:calendar-date-bold-duotone" width={28} />
+										</Avatar>
+										<Box>
+											<Typography variant="h6" sx={{fontWeight: 800, lineHeight: 1.2}}>
+												{dateItem.date_title || "Unnamed Date"}
+											</Typography>
+											<Typography variant="caption" sx={{color: "text.secondary", fontWeight: 700}}>
+												ID: #{dateItem.id}
+											</Typography>
 										</Box>
-									</Typography>
-								</Stack>
-								<Stack direction="row" spacing={1.5} alignItems="flex-start">
-									<Box sx={{p: 0.8, borderRadius: 2, backgroundColor: alpha(theme.palette.error.main, 0.1), display: "flex"}}>
-										<Iconify icon="solar:map-point-bold" width={18} sx={{color: "error.main"}} />
 									</Box>
-									<Box>
-										<Typography variant="body2" sx={{fontSize: "0.85rem", fontWeight: 600}}>
-											{date.locationTitle}
-										</Typography>
-										<Typography variant="caption" color="text.secondary" sx={{display: "block", lineHeight: 1.2}}>
-											{date.locationAddress}
-										</Typography>
-									</Box>
+									<Chip
+										label={statusLabel}
+										size="small"
+										color={statusColor}
+										sx={{
+											fontWeight: 800,
+											px: 1,
+											borderRadius: 1.5,
+										}}
+									/>
 								</Stack>
+
+								<Divider sx={{borderStyle: "dashed"}} />
+
+								{/* Info details */}
+								<Grid container spacing={2}>
+									<Grid size={{xs: 6}}>
+										<Stack direction="row" spacing={1} alignItems="center">
+											<Iconify icon="solar:calendar-bold" sx={{color: "text.secondary"}} width={18} />
+											<Box>
+												<Typography variant="caption" sx={{color: "text.disabled", fontWeight: 800, display: "block"}}>
+													DATE
+												</Typography>
+												<Typography variant="body2" sx={{fontWeight: 700}}>
+													{fDate(dateItem.date)}
+												</Typography>
+											</Box>
+										</Stack>
+									</Grid>
+									<Grid size={{xs: 6}}>
+										<Stack direction="row" spacing={1} alignItems="center">
+											<Iconify icon="solar:clock-circle-bold" sx={{color: "text.secondary"}} width={18} />
+											<Box>
+												<Typography variant="caption" sx={{color: "text.disabled", fontWeight: 800, display: "block"}}>
+													START TIME
+												</Typography>
+												<Typography variant="body2" sx={{fontWeight: 700}}>
+													{formatTime(dateItem.start_time)}
+												</Typography>
+											</Box>
+										</Stack>
+									</Grid>
+								</Grid>
+
+								<Grid container spacing={2}>
+									<Grid size={{xs: 6}}>
+										<Stack direction="row" spacing={1} alignItems="center">
+											<Iconify icon="solar:user-bold" sx={{color: "text.secondary"}} width={18} />
+											<Box>
+												<Typography variant="caption" sx={{color: "text.disabled", fontWeight: 800, display: "block"}}>
+													USER ROLE
+												</Typography>
+												<Chip
+													label={isCreator ? "Creator" : "Guest"}
+													size="small"
+													variant="outlined"
+													color={isCreator ? "primary" : "secondary"}
+													sx={{
+														fontWeight: 700,
+														height: 20,
+														fontSize: "0.7rem",
+													}}
+												/>
+											</Box>
+										</Stack>
+									</Grid>
+									<Grid size={{xs: 6}}>
+										<Stack direction="row" spacing={1} alignItems="center">
+											<Iconify icon="solar:calendar-add-bold" sx={{color: "text.secondary"}} width={18} />
+											<Box>
+												<Typography variant="caption" sx={{color: "text.disabled", fontWeight: 800, display: "block"}}>
+													CREATED AT
+												</Typography>
+												<Typography variant="body2" sx={{fontWeight: 700}}>
+													{fDateTime(dateItem.created_at)}
+												</Typography>
+											</Box>
+										</Stack>
+									</Grid>
+								</Grid>
 							</Stack>
-
-							<Divider sx={{my: 2, borderStyle: "dashed"}} />
-
-							<Stack spacing={2} sx={{mt: "auto"}}>
-								<Box>
-									<Typography variant="overline" sx={{color: "text.secondary", fontWeight: 800, display: "block", mb: 0.5}}>
-										DETAILS & BUDGET
-									</Typography>
-									<Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-										<Chip label={date.budget} size="small" sx={{backgroundColor: alpha(theme.palette.text.primary, 0.05), fontWeight: 600, border: "none"}} />
-										<Chip label={date.treating} size="small" sx={{backgroundColor: alpha(theme.palette.text.primary, 0.05), fontWeight: 600, border: "none"}} />
-										<Chip label={date.dressCode} size="small" sx={{backgroundColor: alpha(theme.palette.text.primary, 0.05), fontWeight: 600, border: "none"}} />
-										<Chip
-											icon={<Iconify icon="mdi:eye" width={14} />}
-											label={date.visibility}
-											size="small"
-											sx={{backgroundColor: alpha(theme.palette.primary.main, 0.1), color: "primary.main", fontWeight: 700, border: "none", "& .MuiChip-icon": {color: "primary.main"}}}
-										/>
-									</Stack>
-								</Box>
-
-								<Box>
-									<Typography variant="overline" sx={{color: "text.secondary", fontWeight: 800, display: "block", mb: 0.5}}>
-										PREFERENCES
-									</Typography>
-									<Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-										<Chip label={date.genderPref} size="small" sx={{backgroundColor: alpha(theme.palette.text.primary, 0.05), fontWeight: 600, border: "none"}} />
-										<Chip label={date.agePref} size="small" sx={{backgroundColor: alpha(theme.palette.text.primary, 0.05), fontWeight: 600, border: "none"}} />
-										<Chip
-											icon={<Iconify icon="mdi:shield-check" width={14} />}
-											label={date.trustPref}
-											size="small"
-											sx={{backgroundColor: alpha(theme.palette.success.main, 0.1), color: "success.main", fontWeight: 700, border: "none", "& .MuiChip-icon": {color: "success.main"}}}
-										/>
-									</Stack>
-								</Box>
-							</Stack>
-						</Box>
-					</Card>
-				</Grid>
-			))}
+						</Card>
+					</Grid>
+				);
+			})}
 		</Grid>
 	);
 };

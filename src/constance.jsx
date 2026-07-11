@@ -1,8 +1,8 @@
-export const DevelopMood = true;
+export const DevelopMood = false;
 
-export const apiURL = DevelopMood ? "http://192.168.0.184/Projects/Laravel/dayteme/public/api/" : "https://laraveltz.thedevelopment.in/jk/dayteme/public/api";
+export const apiURL = DevelopMood ? "http://192.168.0.176/Projects/Laravel/dayteme/public/api/" : "https://www.api.dayteme.com/public/api";
 
-export const imageUlr = "/dayteme";
+export const imageUlr = "";
 
 export const DateFormat = "DD/MM/YYYY";
 

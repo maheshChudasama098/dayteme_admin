@@ -20,8 +20,10 @@ import Iconify from "src/components/common/iconify";
 import Button from "@mui/material/Button";
 import {GetAdminDateRatingsListServices, GetAdminDateRatingsExportServices} from "src/services/Dates.Services";
 import DateRatingFilter from "./DateRatingFilter";
-import { sweetAlerts, sweetAlertSuccess } from "src/utils/sweet-alerts";
+import {sweetAlerts, sweetAlertSuccess} from "src/utils/sweet-alerts";
 import CustomSearchInput from "src/components/common/CustomSearchInput";
+import {fDate} from "src/utils/utils";
+import {CustomActionIconButton} from "src/components/common/CustomActionIconButton";
 
 const DateRatingsList = () => {
 	const theme = useTheme();
@@ -93,27 +95,29 @@ const DateRatingsList = () => {
 		{
 			title: "Date Info",
 			key: "dateTitle",
+			width: 300,
 			render: (_, record) => (
 				<Box>
 					<Typography variant="subtitle2" sx={{fontWeight: 800, color: "text.primary"}}>
 						{record?.date_plan?.date_title}
 					</Typography>
 					<Typography variant="caption" sx={{color: "text.secondary"}}>
-						{record?.date_plan?.date}
+						{fDate(record?.date_plan?.date)}
 					</Typography>
 				</Box>
-			)
+			),
 		},
 		{
 			title: "Rated By",
 			key: "user",
+			width: 300,
 			render: (_, record) => (
-				<Stack direction="row" alignItems="center" spacing={1.5} sx={{py: 0.5}}>
-					<Avatar sx={{width: 32, height: 32, bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main"}}>
+				<Stack direction="row" alignItems="center" spacing={1}>
+					<Avatar variant="rounded" sx={{bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main"}}>
 						{record?.reviewer_user?.name?.charAt(0)}
 					</Avatar>
 					<Box>
-						<Typography variant="subtitle2" sx={{fontWeight: 700, color: "text.primary"}}>
+						<Typography variant="subtitle2" sx={{color: "text.primary"}}>
 							{record?.reviewer_user?.name}
 						</Typography>
 						<Typography variant="caption" sx={{color: "text.secondary"}}>
@@ -127,8 +131,8 @@ const DateRatingsList = () => {
 			title: "Partner Rated",
 			key: "partner",
 			render: (_, record) => (
-				<Stack direction="row" alignItems="center" spacing={1.5} sx={{py: 0.5}}>
-					<Avatar sx={{width: 32, height: 32, bgcolor: alpha(theme.palette.secondary.main, 0.1), color: "secondary.main"}}>
+				<Stack direction="row" alignItems="center" spacing={1}>
+					<Avatar variant="rounded" sx={{bgcolor: alpha(theme.palette.secondary.main, 0.1), color: "secondary.main"}}>
 						{record?.date_plan?.creator?.name?.charAt(0)}
 					</Avatar>
 					<Box>
@@ -146,36 +150,32 @@ const DateRatingsList = () => {
 			title: "Rating",
 			dataIndex: "average_score",
 			key: "rating",
-			render: (average_score) => <Rating value={Number(average_score) || 0} precision={0.1} readOnly size="small" sx={{color: "warning.main"}} />
+			render: (average_score) => <Rating value={Number(average_score) || 0} precision={0.1} readOnly size="small" sx={{color: "warning.main"}} />,
 		},
-		{
-			title: "Feedback",
-			dataIndex: "text",
-			key: "feedback",
-			ellipsis: true,
-			render: (text) => (
-				<Typography variant="body2" sx={{color: "text.secondary", fontStyle: "italic"}}>
-					"{text}"
-				</Typography>
-			)
-		},
+		// {
+		// 	title: "Feedback",
+		// 	dataIndex: "text",
+		// 	key: "feedback",
+		// 	ellipsis: true,
+		// 	render: (text) => (
+		// 		<Typography variant="body2" sx={{color: "text.secondary", fontStyle: "italic"}}>
+		// 			"{text}"
+		// 		</Typography>
+		// 	),
+		// },
 		{
 			title: "Type",
 			dataIndex: "review_type_label",
 			key: "status",
 			render: (review_type_label) => (
-				<Chip 
-					label={review_type_label} 
-					size="small" 
+				<Chip
+					label={review_type_label}
+					size="small"
 					sx={{
-						bgcolor: alpha(
-							review_type_label === "Public" ? theme.palette.success.main : theme.palette.warning.main, 0.1
-						),
+						bgcolor: alpha(review_type_label === "Public" ? theme.palette.success.main : theme.palette.warning.main, 0.1),
 						color: review_type_label === "Public" ? "success.main" : "warning.main",
-						fontWeight: 800,
 						border: "none",
-						borderRadius: 1.5
-					}} 
+					}}
 				/>
 			),
 		},
@@ -185,23 +185,15 @@ const DateRatingsList = () => {
 			align: "center",
 			width: 90,
 			render: (_, record) => (
-				<Box sx={{
-					display: "inline-flex", 
-					justifyContent: "center", 
-					alignItems: "center", 
-					p: 1, 
-					borderRadius: 2, 
-					bgcolor: alpha(theme.palette.primary.main, 0.1),
-					color: "primary.main",
-					cursor: "pointer",
-					transition: "background 0.2s",
-					"&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) }
-				}} onClick={(e) => {
-					e.stopPropagation();
-					navigate(`${AdminRoutes?.DateDetails}?id=${record.date_plan_id}`);
-				}}>
-					<Iconify icon="solar:eye-bold-duotone" width={18} />
-				</Box>
+				<CustomActionIconButton
+					tooltip="View Detail"
+					color="primary"
+					children={<Iconify icon="solar:eye-bold-duotone" />}
+					onClick={(e) => {
+						e.stopPropagation();
+						navigate(`${AdminRoutes?.DateDetails}?id=${record.date_plan_id}`);
+					}}
+				/>
 			),
 		},
 	];
@@ -222,7 +214,7 @@ const DateRatingsList = () => {
 					<Stack spacing={1.5} direction={{xs: "column", md: "row"}}>
 						<Button
 							onClick={() => {
-								const payLoad = { search, ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined)) };
+								const payLoad = {search, ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined))};
 								setLoadingLoader(true);
 								dispatch(
 									GetAdminDateRatingsExportServices(payLoad, (res) => {
@@ -246,8 +238,7 @@ const DateRatingsList = () => {
 							variant="outlined"
 							color="primary"
 							startIcon={<Iconify icon="solar:download-bold-duotone" />}
-							sx={{borderRadius: 2, fontWeight: 800}}
-						>
+							sx={{borderRadius: 2, fontWeight: 800}}>
 							Export CSV
 						</Button>
 					</Stack>
@@ -270,54 +261,28 @@ const DateRatingsList = () => {
 						</Stack>
 					</Stack>
 
-					<Box sx={{
-						"& .ant-table-wrapper": {borderRadius: 0},
-						"& .ant-table": {background: "transparent"},
-						"& .ant-table-thead > tr > th": {
-							background: alpha(theme.palette.text.primary, 0.02), 
-							fontWeight: 800, 
-							color: "text.secondary", 
-							borderBottom: `1px dashed ${theme.palette.divider}`,
-							textTransform: "uppercase",
-							fontSize: "0.75rem"
-						},
-						"& .ant-table-tbody > tr > td": {
-							borderBottom: `1px dashed ${theme.palette.divider}`
-						},
-						"& .ant-table-tbody > tr:hover > td": {
-							background: alpha(theme.palette.primary.main, 0.01)
-						},
-						"& .ant-table-tbody > tr:last-child > td": {
-							borderBottom: "none"
+					<Table
+						className="custom-ant-table"
+						showSorterTooltip={false}
+						columns={
+							!loadingLoader
+								? columns
+								: columns.map((col) => ({
+										...col,
+										render: () => <Skeleton variant="" animation="wave" sx={{width: "100%", height: 25, borderRadius: 1}} />,
+									}))
 						}
-					}}>
-						<Table
-							className="custom-ant-table"
-							showSorterTooltip={false}
-							columns={
-								!loadingLoader
-									? columns
-									: columns.map((col) => ({
-											...col,
-											render: () => <Skeleton variant="" animation="wave" sx={{width: "100%", height: 25, borderRadius: 1}} />,
-										}))
-							}
-							dataSource={
-								!loadingLoader
-									? list
-									: [...Array(pageSize >= totalRecode ? totalRecode : pageSize)].map((_, i) => ({
-											key: i,
-										}))
-							}
-							scroll={{x: "max-content"}}
-							pagination={false}
-							rowKey="id"
-							onRow={(record) => ({
-								onClick: () => navigate(`${AdminRoutes?.DateDetails}?id=${record.date_plan_id}`),
-								style: {cursor: "pointer"},
-							})}
-						/>
-					</Box>
+						dataSource={
+							!loadingLoader
+								? list
+								: [...Array(pageSize >= totalRecode ? totalRecode : pageSize)].map((_, i) => ({
+										key: i,
+									}))
+						}
+						scroll={{x: "max-content"}}
+						pagination={false}
+						rowKey="id"
+					/>
 
 					<CustomPagination
 						current={page}

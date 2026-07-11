@@ -168,6 +168,51 @@ const ProfileTab = ({user}) => {
 							</Typography>
 						</Box>
 					</Grid>
+
+					{/* Emergency Contacts & Preferences */}
+					<Grid size={{xs: 12, md: 6}}>
+						<Box sx={{p: 3, bgcolor: alpha(theme.palette.text.primary, 0.03), borderRadius: 3, height: "100%"}}>
+							<Typography variant="caption" sx={{color: "text.disabled", fontWeight: 800, textTransform: "uppercase", display: "block", mb: 1.5}}>
+								Emergency Contacts
+							</Typography>
+							{user?.emergency_contacts?.length > 0 ? (
+								<Stack spacing={2}>
+									{user.emergency_contacts.map((contact, i) => (
+										<Stack direction="row" justifyContent="space-between" alignItems="center" key={i} sx={{p: 1.5, bgcolor: "background.paper", borderRadius: 2}}>
+											<Box>
+												<Typography variant="body2" sx={{fontWeight: 700}}>{contact.full_name}</Typography>
+												<Typography variant="caption" sx={{color: "text.secondary", fontWeight: 600}}>{contact.relationship}</Typography>
+											</Box>
+											<Typography variant="body2" sx={{fontWeight: 600, color: "primary.main"}}>{contact.phone_number}</Typography>
+										</Stack>
+									))}
+								</Stack>
+							) : (
+								<Typography variant="body2" sx={{fontWeight: 600, color: "text.secondary", fontStyle: "italic"}}>
+									No emergency contacts provided.
+								</Typography>
+							)}
+						</Box>
+					</Grid>
+					<Grid size={{xs: 12, md: 6}}>
+						<Box sx={{p: 3, bgcolor: alpha(theme.palette.text.primary, 0.03), borderRadius: 3, height: "100%"}}>
+							<Typography variant="caption" sx={{color: "text.disabled", fontWeight: 800, textTransform: "uppercase", display: "block", mb: 1.5}}>
+								App Preferences
+							</Typography>
+							<Stack spacing={1.5}>
+								{[
+									{ label: "Show My Age", value: user?.show_my_age },
+									{ label: "Show Gender in Profile", value: user?.show_gender_in_profile },
+									{ label: "Receive Weekly Date Ideas", value: user?.send_weekly_date_ideas }
+								].map((pref, i) => (
+									<Stack direction="row" justifyContent="space-between" key={i}>
+										<Typography variant="body2" sx={{fontWeight: 600, color: "text.secondary"}}>{pref.label}</Typography>
+										<Chip label={pref.value ? "Yes" : "No"} size="small" color={pref.value ? "success" : "default"} sx={{fontWeight: 700, height: 20}} />
+									</Stack>
+								))}
+							</Stack>
+						</Box>
+					</Grid>
 				</Grid>
 			</Card>
 

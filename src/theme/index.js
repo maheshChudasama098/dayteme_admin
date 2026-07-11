@@ -30,9 +30,11 @@ export const getTheme = (themeColor = "primary", mode = "light") =>
 			},
 			background: {
 				...palette.background,
-				default: mode === "dark" ? "#000000" : "#F4F6F8",
-				paper: mode === "dark" ? "#141a21" : "#FFFFFF",
-				neutral: mode === "dark" ? "#283039" : "#FFFFFF",
+				// default: mode === "dark" ? "#000000" : "#F4F6F8",
+				default: mode === "dark" ? "#0f0509" : "#F4F6F8",
+				paper: mode === "dark" ? "#16090e" : "#FFFFFF",
+				// paper: mode === "dark" ? "#040404" : "#FFFFFF",
+				neutral: mode === "dark" ? "#1a0a10" : "#FFFFFF",
 			},
 		},
 

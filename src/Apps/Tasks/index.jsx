@@ -23,7 +23,7 @@ import TaskModel from "./TaskModel";
 import TaskFilter from "./TaskFilter";
 import {DeleteAdminTaskServices, GetAdminTasksListServices} from "src/services/Tasks.Services";
 import {sweetAlertQuestion, sweetAlerts, sweetAlertSuccess} from "src/utils/sweet-alerts";
-import {fDate, getErrorMessage} from "src/utils/utils";
+import {fDate, fTruncateWords, getErrorMessage} from "src/utils/utils";
 
 export default function TaskList() {
 	const theme = useTheme();
@@ -159,12 +159,13 @@ export default function TaskList() {
 			key: "title",
 			fixed: "left",
 			width: 250,
+			ellipsis: true,
 			render: (_, record) => (
 				<Stack direction="row" alignItems="center" spacing={1.5}>
 					<Box sx={{width: 15, height: 15, borderRadius: "50%", bgcolor: getPriorityColor(record.priority_label)}} />
 					<Box>
-						<Typography variant="subtitle2" color="text.primary" noWrap sx={{fontWeight: 700}}>
-							{record.title}
+						<Typography variant="subtitle2" color="text.primary" noWrap>
+							{fTruncateWords(record.title, 20)}
 						</Typography>
 					</Box>
 				</Stack>
@@ -234,7 +235,7 @@ export default function TaskList() {
 			width: 100,
 			render: (_, record) => (
 				<Stack spacing={0.5} direction="row" sx={{justifyContent: "right"}}>
-					<Tooltip title="View Task Details">
+					{/* <Tooltip title="View Task Details">
 						<CustomActionIconButton
 							color="info"
 							onClick={(e) => {
@@ -243,10 +244,10 @@ export default function TaskList() {
 							}}>
 							<Iconify icon="solar:eye-bold-duotone" width={16} />
 						</CustomActionIconButton>
-					</Tooltip>
+					</Tooltip> */}
 					<Tooltip title="Edit Task">
 						<CustomActionIconButton
-							color="success"
+							color="info"
 							onClick={(e) => {
 								e.stopPropagation();
 								setTaskData({
@@ -302,7 +303,7 @@ export default function TaskList() {
 				</Stack>
 			</Stack>
 
-			<Card sx={{borderRadius: 4, boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.05)", border: "none"}}>
+			<Card >
 				<Stack spacing={2}>
 					<Stack spacing={1} direction="row" sx={{m: 2, px: 2, pt: 2, justifyContent: "space-between", alignItems: "center"}}>
 						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={setSearch} placeholder="Search tasks by title, ID, assignee..." width={{xs: "100%", md: 400}} />
@@ -337,10 +338,10 @@ export default function TaskList() {
 						scroll={{x: "max-content"}}
 						pagination={false}
 						rowKey="task_id"
-						onRow={(record) => ({
-							onClick: () => navigate(`${AdminRoutes?.TaskDetails}?id=${record.task_id}`),
-							style: {cursor: "pointer"},
-						})}
+						// onRow={(record) => ({
+						// 	onClick: () => navigate(`${AdminRoutes?.TaskDetails}?id=${record.task_id}`),
+						// 	style: {cursor: "pointer"},
+						// })}
 					/>
 
 					<CustomPagination

@@ -1,28 +1,34 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import React, {useState, useEffect} from "react";
+import {useDispatch} from "react-redux";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import CustomDrawer from "src/components/common/CustomDrawer";
-import { AutoCompleteSelectMenu } from "src/components/common/inputs";
-import { GetLocationsListServices } from "src/services/Locations.Services";
-import { GetGenderListServices } from "src/services/Users.Services";
-import { useFormik } from "formik";
+import {AutoCompleteSelectMenu} from "src/components/common/inputs";
+import {GetLocationsListServices} from "src/services/Locations.Services";
+import {GetAdminUserStatusesServices, GetGenderListServices} from "src/services/Users.Services";
+import {useFormik} from "formik";
 
 const BOOLEAN_OPTIONS = [
-	{ id: 1, name: "Yes" },
-	{ id: 0, name: "No" },
+	{id: 1, name: "Yes"},
+	{id: 0, name: "No"},
 ];
 
-export default function UserFilter({ open, onClose, filters, setFilters, onApply }) {
+export default function UserFilter({open, onClose, filters, setFilters, onApply}) {
 	const dispatch = useDispatch();
 	const [locations, setLocations] = useState([]);
+	const [statuses, setStatuses] = useState([]);
 	const [genders, setGenders] = useState([]);
 
 	useEffect(() => {
 		dispatch(
 			GetLocationsListServices((res) => {
 				if (res?.success) setLocations(res?.data?.location || []);
+			}),
+		);
+		dispatch(
+			GetAdminUserStatusesServices((res) => {
+				if (res?.success) setStatuses(res?.data?.statuses || []);
 			}),
 		);
 		dispatch(
@@ -34,6 +40,7 @@ export default function UserFilter({ open, onClose, filters, setFilters, onApply
 
 	const formik = useFormik({
 		initialValues: {
+			status: filters.status !== "" ? filters.status : "",
 			is_admin: filters.is_admin !== "" ? Number(filters.is_admin) : "",
 			gender_id: filters.gender_id !== "" ? Number(filters.gender_id) : "",
 			location_id: filters.location_id !== "" ? Number(filters.location_id) : "",
@@ -49,12 +56,13 @@ export default function UserFilter({ open, onClose, filters, setFilters, onApply
 
 	const handleClear = () => {
 		const emptyFilters = {
+			status: "",
 			is_admin: "",
 			gender_id: "",
 			location_id: "",
 			is_paused: "",
 		};
-		formik.resetForm({ values: emptyFilters });
+		formik.resetForm({values: emptyFilters});
 		setFilters(emptyFilters);
 		if (onApply) onApply(emptyFilters);
 		onClose();
@@ -66,15 +74,17 @@ export default function UserFilter({ open, onClose, filters, setFilters, onApply
 				<Stack spacing={3}>
 					<AutoCompleteSelectMenu formik={formik} label="Is Admin?" field="is_admin" placeholder="Select Admin Status" menuList={BOOLEAN_OPTIONS} valueKey="id" labelKey="name" required={false} />
 
+					<AutoCompleteSelectMenu formik={formik} label="Status" field="status" placeholder="Select Status" menuList={statuses} valueKey="id" labelKey="name" required={false} />
+
 					<AutoCompleteSelectMenu formik={formik} label="Gender" field="gender_id" placeholder="Select Gender" menuList={genders} valueKey="id" labelKey="name" required={false} />
 
 					<AutoCompleteSelectMenu formik={formik} label="Location" field="location_id" placeholder="Select Location" menuList={locations} valueKey="id" labelKey="name" required={false} />
 
 					<AutoCompleteSelectMenu formik={formik} label="Account Paused?" field="is_paused" placeholder="Select Paused Status" menuList={BOOLEAN_OPTIONS} valueKey="id" labelKey="name" required={false} />
 
-					<Box sx={{ flexGrow: 1 }} />
+					<Box sx={{flexGrow: 1}} />
 
-					<Stack direction="row" spacing={2} sx={{ pt: 2, mt: 4, borderTop: '1px dashed', borderColor: 'divider' }}>
+					<Stack direction="row" spacing={2} sx={{pt: 2, mt: 4, borderTop: "1px dashed", borderColor: "divider"}}>
 						<Button fullWidth variant="outlined" color="inherit" onClick={handleClear}>
 							Clear
 						</Button>

@@ -74,7 +74,7 @@ function Index() {
 
 	return (
 		<CustomBackGround
-			imageName="bg.png"
+			imageName="bg4.png"
 			headingText="Manage the job"
 			subText="More effectively with optimized workflows."
 			rightContent={

@@ -15,7 +15,11 @@ import {useTheme, alpha} from "@mui/material/styles";
 
 import Iconify from "src/components/common/iconify";
 import { useDispatch } from "react-redux";
-import { GetAdminDateDetailsServices, GetAdminDateRatingsServices } from "src/services/Dates.Services";
+import { GetAdminDateDetailsServices, GetAdminDateRatingsServices, PostAdminDateStatusServices } from "src/services/Dates.Services";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import { sweetAlertQuestion, sweetAlerts, sweetAlertSuccess } from "src/utils/sweet-alerts";
+import { getErrorMessage } from "src/utils/utils";
 
 const DateDetails = () => {
 	const theme = useTheme();
@@ -26,6 +30,50 @@ const DateDetails = () => {
 
 	const [datePlan, setDatePlan] = useState({});
 	const [ratings, setRatings] = useState([]);
+	const [apiFlag, setApiFlag] = useState(false);
+
+	const resolveStatusId = (record) => {
+		if (record?.status !== undefined && record?.status !== null) {
+			return Number(record.status);
+		}
+		const text = String(record?.status_text || "").toLowerCase();
+		if (text === "completed") return 3;
+		if (text === "cancelled") return 7;
+		if (text === "active") return 1;
+		if (text === "connected") return 2;
+		if (text === "draft") return 0;
+		return 1;
+	};
+
+	const handleStatusChange = (newStatus) => {
+		const statusLabel = newStatus === 3 ? "Completed" : "Cancelled";
+		sweetAlertQuestion(
+			`Are you sure you want to change this date status to ${statusLabel}?`,
+			"Change Status?"
+		).then((result) => {
+			if (result) {
+				dispatch(
+					PostAdminDateStatusServices(id, {status: Number(newStatus)}, (res) => {
+						if (res?.success) {
+							setApiFlag((prev) => !prev);
+							sweetAlertSuccess(`Status updated to ${statusLabel} successfully`);
+						} else {
+							sweetAlerts("error", getErrorMessage(res));
+						}
+					})
+				);
+			}
+		});
+	};
+
+	const getStatusColor = (statusId, statusText) => {
+		const text = String(statusText || "").toLowerCase();
+		if (statusId === 3 || text === "completed") return theme.palette.success.main;
+		if (statusId === 7 || text === "cancelled") return theme.palette.error.main;
+		if (text === "active") return theme.palette.success.main;
+		if (text === "upcoming") return theme.palette.info.main;
+		return theme.palette.warning.main;
+	};
 
 	useEffect(() => {
 		function apiCallAction() {
@@ -47,7 +95,7 @@ const DateDetails = () => {
 		if (id) {
 			apiCallAction();
 		}
-	}, [dispatch, id]);
+	}, [dispatch, id, apiFlag]);
 
 	const host = {
 		name: datePlan?.user?.name || "Unknown",
@@ -83,7 +131,6 @@ const DateDetails = () => {
 								boxShadow: theme.shadows[2],
 								overflow: "hidden",
 								minHeight: 320,
-								backgroundImage: `url('${datePlan?.address_image_url || "https://images.unsplash.com/photo-1573164574572-cb89e39749b4?q=80&w=800"}')`,
 								backgroundSize: "cover",
 								backgroundPosition: "center",
 							}}>
@@ -183,9 +230,38 @@ const DateDetails = () => {
 								<Typography variant="h4" fontWeight={800} color="text.primary" sx={{mb: 0.5, textTransform: "capitalize"}}>
 									{datePlan?.date_title || "Date Setup"}
 								</Typography>
-								<Typography variant="body2" color="text.secondary" sx={{fontWeight: 600}}>
-									Ref: #{datePlan?.id} • {datePlan?.status_text}
-								</Typography>
+								<Stack direction="row" spacing={1.5} alignItems="center" sx={{mt: 0.5}}>
+									<Typography variant="body2" color="text.secondary" sx={{fontWeight: 600}}>
+										Ref: #{datePlan?.id}
+									</Typography>
+									<Typography variant="body2" color="text.secondary" sx={{fontWeight: 600}}>
+										•
+									</Typography>
+									<Select
+										size="small"
+										value={resolveStatusId(datePlan)}
+										onChange={(e) => handleStatusChange(e.target.value)}
+										sx={{
+											height: 26,
+											fontSize: "0.75rem",
+											fontWeight: 800,
+											color: getStatusColor(resolveStatusId(datePlan), datePlan?.status_text),
+											bgcolor: alpha(getStatusColor(resolveStatusId(datePlan), datePlan?.status_text), 0.05),
+											"& .MuiOutlinedInput-notchedOutline": {borderColor: alpha(getStatusColor(resolveStatusId(datePlan), datePlan?.status_text), 0.3)},
+											"&:hover .MuiOutlinedInput-notchedOutline": {borderColor: getStatusColor(resolveStatusId(datePlan), datePlan?.status_text)},
+											"&.Mui-focused .MuiOutlinedInput-notchedOutline": {borderColor: getStatusColor(resolveStatusId(datePlan), datePlan?.status_text)},
+											"& .MuiSelect-icon": {color: getStatusColor(resolveStatusId(datePlan), datePlan?.status_text)},
+											borderRadius: 1,
+										}}>
+										{resolveStatusId(datePlan) !== 3 && resolveStatusId(datePlan) !== 7 && (
+											<MenuItem value={resolveStatusId(datePlan)} disabled>
+												{datePlan?.status_text || "Unknown"}
+											</MenuItem>
+										)}
+										<MenuItem value={3} sx={{ fontWeight: 600 }}>Completed</MenuItem>
+										<MenuItem value={7} sx={{ fontWeight: 600 }}>Cancelled</MenuItem>
+									</Select>
+								</Stack>
 								{(datePlan?.created_at || datePlan?.updated_at) && (
 									<Typography variant="caption" color="text.disabled" sx={{display: "block", mt: 0.5}}>
 										Created: {datePlan?.created_at ? new Date(datePlan.created_at).toLocaleString() : ""} | Updated: {datePlan?.updated_at ? new Date(datePlan.updated_at).toLocaleString() : ""}

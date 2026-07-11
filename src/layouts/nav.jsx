@@ -20,11 +20,16 @@ import Iconify from "src/components/common/iconify";
 
 import {NAV} from "./config-layout";
 import {adminNavConfig} from "./config-navigation";
+import {defaultImageUrl} from "src/utils/utils";
+import {useHasPermission} from "src/hooks/use-permission";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 // ----------------------------------------------------------------------
 export default function Nav({openNav, onCloseNav}) {
 	const pathname = usePathname();
-	const {userDetails} = useSelector((state) => state?.auth);
+	const {userDetails, permissions} = useSelector((state) => state?.auth);
+	const {hasPermission} = useHasPermission();
 
 	const [openChild, setOpenChild] = useState(false);
 	const [openMenus, setOpenMenus] = useState([]);
@@ -39,11 +44,11 @@ export default function Nav({openNav, onCloseNav}) {
 	}, [pathname]);
 
 	useEffect(() => {
-		function fun() {
-			setFilterNavItems(adminNavConfig);
-		}
-		fun();
-	}, [userDetails?.role?.name]);
+		const filtered = adminNavConfig.filter((item) => {
+			return hasPermission(item.permission);
+		});
+		setFilterNavItems(filtered);
+	}, [permissions, userDetails?.role?.name]);
 
 	const renderMenu = (
 		<Stack component="nav" spacing={0.3} sx={{px: 1}}>
@@ -65,17 +70,12 @@ export default function Nav({openNav, onCloseNav}) {
 					}}>
 					<Avatar
 						sx={{
-							background: (theme) => theme.palette.primary.main,
-							borderRadius: 1.6,
-							width: 35,
-							height: 35,
-							boxShadow: 2,
-						}}>
-						<Iconify icon="mingcute:love-fill" width={20} />
-					</Avatar>
-					<Typography variant="h5" sx={{fontWeight: 900}} color="text.primary">
-						Dayteme
-					</Typography>
+							width: "100%",
+							height: 50,
+						}}
+						src={defaultImageUrl(`/assets/horizontal_logo_black.png`)}
+						variant="rounded"
+					/>
 				</Stack>
 			</Box>
 			{renderMenu}

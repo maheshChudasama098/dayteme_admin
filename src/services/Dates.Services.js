@@ -89,3 +89,19 @@ export function GetAdminDateRatingsExportServices(params, cb) {
 			});
 	};
 }
+
+export function PostAdminDateStatusServices(dateId, data, cb) {
+	return (dispatch) => {
+		dispatch({type: "FETCH_START"});
+		jwtAuthAxios
+			.post(`/v1/admin/dates/${dateId}/status`, data)
+			.then((res) => {
+				dispatch({type: "FETCH_SUCCESS"});
+				if (cb) cb(res.data);
+			})
+			.catch((error) => {
+				if (cb) cb(error?.response?.data || error);
+			});
+	};
+}
+
