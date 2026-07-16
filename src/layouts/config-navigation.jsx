@@ -92,12 +92,12 @@ export const adminNavConfig = [
 		icon: "solar:card-bold-duotone",
 		permission: ["manage_payments", "view_payments"],
 	},
-	{
-		title: "Revenue",
-		path: AdminRoutes?.Revenue,
-		icon: "solar:wad-of-money-bold-duotone",
-		permission: ["manage_revenue"],
-	},
+	// {
+	// 	title: "Revenue",
+	// 	path: AdminRoutes?.Revenue,
+	// 	icon: "solar:wad-of-money-bold-duotone",
+	// 	permission: ["manage_revenue"],
+	// },
 	{
 		title: "Audit Logs",
 		path: AdminRoutes?.AuditLogsList,

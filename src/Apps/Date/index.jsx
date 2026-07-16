@@ -65,10 +65,7 @@ const DateList = () => {
 
 	const handleStatusChange = (dateId, newStatus) => {
 		const statusLabel = newStatus === 3 ? "Completed" : "Cancelled";
-		sweetAlertQuestion(
-			`Are you sure you want to change this date status to ${statusLabel}?`,
-			"Change Status?"
-		).then((result) => {
+		sweetAlertQuestion(`Are you sure you want to change this date status to ${statusLabel}?`, "Change Status?").then((result) => {
 			if (result) {
 				dispatch(
 					PostAdminDateStatusServices(dateId, {status: Number(newStatus)}, (res) => {
@@ -78,7 +75,7 @@ const DateList = () => {
 						} else {
 							sweetAlerts("error", getErrorMessage(res));
 						}
-					})
+					}),
 				);
 			}
 		});
@@ -128,7 +125,7 @@ const DateList = () => {
 			key: "info",
 			render: (_, record) => (
 				<Stack direction="row" alignItems="center" spacing={1.5}>
-					<Avatar variant="rounded" />
+					<Avatar variant="rounded" src={record?.user?.image} />
 					<Box>
 						<Typography variant="subtitle2" sx={{fontWeight: 800, color: "text.primary"}}>
 							{record?.user?.name}
@@ -175,7 +172,7 @@ const DateList = () => {
 			render: (_, record) => {
 				const currentStatusId = resolveStatusId(record);
 				const statusText = record?.status_text || "Unknown";
-				
+
 				// Determine color
 				let color = theme.palette.info.main;
 				if (currentStatusId === 3 || statusText.toLowerCase() === "completed") {
@@ -213,8 +210,12 @@ const DateList = () => {
 								{statusText}
 							</MenuItem>
 						)}
-						<MenuItem value={3} sx={{ fontWeight: 600 }}>Completed</MenuItem>
-						<MenuItem value={7} sx={{ fontWeight: 600 }}>Cancelled</MenuItem>
+						<MenuItem value={3} sx={{fontWeight: 600}}>
+							Completed
+						</MenuItem>
+						<MenuItem value={7} sx={{fontWeight: 600}}>
+							Cancelled
+						</MenuItem>
 					</Select>
 				);
 			},

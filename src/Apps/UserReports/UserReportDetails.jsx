@@ -37,7 +37,7 @@ const UserCard = ({title, user, onNavigate, onBan}) => (
 		<Divider sx={{mb: 3}} />
 
 		<Stack direction="row" spacing={3} alignItems="center" sx={{mb: 4}}>
-			<Avatar src={user.avatar} sx={{width: 50, height: 50, bgcolor: "primary.main"}}>
+			<Avatar src={user.image} sx={{width: 50, height: 50, bgcolor: "primary.main"}} variant="rounded">
 				{user?.name?.charAt(0)}
 			</Avatar>
 			<Box>
@@ -263,11 +263,11 @@ const UserReportDetails = () => {
 					<UserCard title="Reporter Details" user={reporter} onNavigate={(userId) => navigate(`${AdminRoutes?.UserDetails}?id=${userId}`)} />
 				</Grid>
 				<Grid size={{xs: 12, md: 6}}>
-					<UserCard 
-						title="Reported User Details" 
-						user={reportedUser} 
-						onNavigate={(userId) => navigate(`${AdminRoutes?.UserDetails}?id=${userId}`)} 
-						onBan={(hasPermission("moderate_users") || hasPermission("manage_users")) ? handleBanUser : null} 
+					<UserCard
+						title="Reported User Details"
+						user={reportedUser}
+						onNavigate={(userId) => navigate(`${AdminRoutes?.UserDetails}?id=${userId}`)}
+						onBan={hasPermission("moderate_users") || hasPermission("manage_users") ? handleBanUser : null}
 					/>
 				</Grid>
 			</Grid>

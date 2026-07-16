@@ -115,7 +115,7 @@ const UserReportsList = () => {
 			width: 250,
 			render: (_, record) => (
 				<Stack direction="row" alignItems="center" spacing={1.5} sx={{py: 0.5}}>
-					<Avatar variant="rounded" sx={{bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main"}}>
+					<Avatar variant="rounded" src={record?.reporter_user?.image} sx={{bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main"}}>
 						{record?.reporter_user?.name?.charAt(0)}
 					</Avatar>
 					<Box>
@@ -135,7 +135,7 @@ const UserReportsList = () => {
 			width: 250,
 			render: (_, record) => (
 				<Stack direction="row" alignItems="center" spacing={1.5} sx={{py: 0.5}}>
-					<Avatar variant="rounded" sx={{bgcolor: alpha(theme.palette.error.main, 0.1), color: "error.main"}}>
+					<Avatar variant="rounded" src={record?.reported_user?.image} sx={{bgcolor: alpha(theme.palette.error.main, 0.1), color: "error.main"}}>
 						{record?.reported_user?.name?.charAt(0)}
 					</Avatar>
 					<Box>
@@ -158,9 +158,11 @@ const UserReportsList = () => {
 					<Typography variant="subtitle2" sx={{color: "text.primary"}}>
 						{record?.report_type}
 					</Typography>
-					<Typography variant="caption" sx={{color: "text.secondary", fontStyle: "italic", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden"}}>
-						"{record?.details}"
-					</Typography>
+					{record?.details && (
+						<Typography variant="caption" sx={{color: "text.secondary", fontStyle: "italic", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden"}}>
+							"{record?.details}"
+						</Typography>
+					)}
 				</Stack>
 			),
 		},

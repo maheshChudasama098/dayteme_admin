@@ -18,9 +18,9 @@ import CustomSearchInput from "src/components/common/CustomSearchInput";
 import Iconify from "src/components/common/iconify";
 import CustomTooltip from "src/components/common/CustomTooltip";
 import Button from "@mui/material/Button";
-import { GetAdminPaymentsListServices, GetAdminPaymentsExportServices } from "src/services/Payments.Services";
+import {GetAdminPaymentsListServices, GetAdminPaymentsExportServices} from "src/services/Payments.Services";
 import PaymentFilter from "./PaymentFilter";
-import { sweetAlerts, sweetAlertSuccess } from "src/utils/sweet-alerts";
+import {sweetAlerts, sweetAlertSuccess} from "src/utils/sweet-alerts";
 
 const PaymentList = () => {
 	const theme = useTheme();
@@ -110,7 +110,7 @@ const PaymentList = () => {
 			key: "user",
 			render: (_, record) => (
 				<Stack direction="row" alignItems="center" spacing={1.5} sx={{py: 0.5}}>
-					<Avatar sx={{width: 36, height: 36, bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main"}}>
+					<Avatar src={record?.user?.image} sx={{bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main"}} variant="rounded">
 						{record?.user?.name?.charAt(0)}
 					</Avatar>
 					<Box>
@@ -245,7 +245,7 @@ const PaymentList = () => {
 					<Stack spacing={1.5} direction={{xs: "column", md: "row"}}>
 						<Button
 							onClick={() => {
-								const payLoad = { search, ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined)) };
+								const payLoad = {search, ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== "" && v !== null && v !== undefined))};
 								setLoadingLoader(true);
 								dispatch(
 									GetAdminPaymentsExportServices(payLoad, (res) => {
@@ -269,8 +269,7 @@ const PaymentList = () => {
 							variant="outlined"
 							color="primary"
 							startIcon={<Iconify icon="solar:download-bold-duotone" />}
-							sx={{borderRadius: 2, fontWeight: 800}}
-						>
+							sx={{borderRadius: 2, fontWeight: 800}}>
 							Export CSV
 						</Button>
 					</Stack>

@@ -113,7 +113,7 @@ const DateRatingsList = () => {
 			width: 300,
 			render: (_, record) => (
 				<Stack direction="row" alignItems="center" spacing={1}>
-					<Avatar variant="rounded" sx={{bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main"}}>
+					<Avatar variant="rounded" src={record?.reviewer_user?.image} sx={{bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main"}}>
 						{record?.reviewer_user?.name?.charAt(0)}
 					</Avatar>
 					<Box>
@@ -132,7 +132,7 @@ const DateRatingsList = () => {
 			key: "partner",
 			render: (_, record) => (
 				<Stack direction="row" alignItems="center" spacing={1}>
-					<Avatar variant="rounded" sx={{bgcolor: alpha(theme.palette.secondary.main, 0.1), color: "secondary.main"}}>
+					<Avatar variant="rounded" src={record?.date_plan?.creator?.image} sx={{bgcolor: alpha(theme.palette.secondary.main, 0.1), color: "secondary.main"}}>
 						{record?.date_plan?.creator?.name?.charAt(0)}
 					</Avatar>
 					<Box>

@@ -27,7 +27,7 @@ export default function AccountDeletionRequests() {
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
-	const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || 15);
+	const [pageSize, setPageSize] = useState(Number(searchParams.get("pageSize")) || 10);
 	const [totalRecord, setTotalRecord] = useState(0);
 	const [search, setSearch] = useState(searchParams.get("search") || "");
 	const [list, setList] = useState([]);

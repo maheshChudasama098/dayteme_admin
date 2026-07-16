@@ -29,7 +29,7 @@ export const CustomBackGround = ({rightContent, imageName, headingText, subText}
 					sx={{
 						display: {xs: "none", md: "block"},
 						height: "100%",
-						backgroundImage: `linear-gradient(rgba(0, 0, 0, 55), rgba(0, 0, 0, 0)), url(${defaultImageUrl(`/assets/background/${imageName}`)})`,
+						backgroundImage: `linear-gradient(rgba(0, 0, 0,0.60), rgba(0, 0, 0, 0)), url(${defaultImageUrl(`/assets/background/${imageName}`)})`,
 						// backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(https://images.unsplash.com/photo-1557682250-33bd709cbe85)`,
 						backgroundSize: "cover",
 						backgroundPosition: "center",
@@ -47,7 +47,7 @@ export const CustomBackGround = ({rightContent, imageName, headingText, subText}
 									src={defaultImageUrl(`/assets/logo.png`)}
 									variant="rounded"
 								/>
-								<Typography variant="h4" align="center" color="text.primary" justifyContent="end">
+								<Typography variant="h4" align="center" color={theme.palette.mode !== "dark" ? "common.white" : "common.black"} justifyContent="end">
 									{headingText}
 								</Typography>
 								<Typography align="center" variant="body2" color="text.secondary">

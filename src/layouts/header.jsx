@@ -66,13 +66,13 @@ export default function Header({onOpenNav, openNav}) {
 						<Iconify icon="solar:magnifer-linear" />
 					</IconButton>
 				</Tooltip>
-				<Tooltip title="Notifications">
+				{/* <Tooltip title="Notifications">
 					<IconButton>
 						<Badge badgeContent={4} color="error">
 							<Iconify icon="solar:bell-linear" />
 						</Badge>
 					</IconButton>
-				</Tooltip>
+				</Tooltip> */}
 				<AccountPopover />
 			</Stack>
 
