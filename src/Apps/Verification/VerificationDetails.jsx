@@ -33,6 +33,7 @@ export default function VerificationDetails() {
 	const [rejectAnchorEl, setRejectAnchorEl] = useState(null);
 	const [user, setUser] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const [orbaoneData, setOrbaoneData] = useState({});
 
 	useEffect(() => {
 		if (userId) {
@@ -48,6 +49,25 @@ export default function VerificationDetails() {
 			);
 		}
 	}, [userId, dispatch]);
+
+	// useEffect(() => {
+	// 	if (user?.orba_one_applicant_id) {
+	// 		fetch(`https://api.orbaone.com/api/v1/applicants/${user.orba_one_applicant_id}`, {
+	// 			method: "GET",
+	// 			headers: {
+	// 				AuthKey: "M2JjNWM5ZjM3YzZkNDIxOWFhNjA2MTg0ODkzMjhlODg6NzYzMTMyOGY3NDY1NDM4OWJlNGU0NmQ2Yjc2NWE4Nzk=",
+	// 				Accept: "application/json",
+	// 			},
+	// 		})
+	// 			.then((res) => res.json())
+	// 			.then((data) => {
+	// 				setOrbaoneData(data?.data);
+	// 			})
+	// 			.catch((err) => {
+	// 				console.error("Orba One Fetch Error:", err);
+	// 			});
+	// 	}
+	// }, [user?.orba_one_applicant_id]);
 
 	const handleAction = (actionName) => {
 		setActionAnchorEl(null);
@@ -362,7 +382,7 @@ export default function VerificationDetails() {
 										Document Type
 									</Typography>
 									<Typography variant="subtitle1" fontWeight="700">
-										{user?.kyc_document?.name || "Not provided"}
+										{user?.kyc_document_type || "Not provided"}
 									</Typography>
 								</Grid>
 								<Grid size={{xs: 12, sm: 6}}>
@@ -371,6 +391,38 @@ export default function VerificationDetails() {
 									</Typography>
 									<Typography variant="subtitle1" fontWeight="700">
 										{fDate(user?.updated_at)}
+									</Typography>
+								</Grid>
+								<Grid size={{xs: 12, sm: 6}}>
+									<Typography variant="body2" color="text.secondary">
+										Document Number
+									</Typography>
+									<Typography variant="subtitle1" fontWeight="700">
+										{user?.kyc_document_number || "Not provided"}
+									</Typography>
+								</Grid>
+								<Grid size={{xs: 12, sm: 6}}>
+									<Typography variant="body2" color="text.secondary">
+										Full Name (Document)
+									</Typography>
+									<Typography variant="subtitle1" fontWeight="700">
+										{orbaoneData?.idDocumentData?.fullName || "Not provided"}
+									</Typography>
+								</Grid>
+								<Grid size={{xs: 12, sm: 6}}>
+									<Typography variant="body2" color="text.secondary">
+										Face Match Score
+									</Typography>
+									<Typography variant="subtitle1" fontWeight="700">
+										{user?.kyc_face_match_score ? `${user.kyc_face_match_score}%` : "Not provided"}
+									</Typography>
+								</Grid>
+								<Grid size={{xs: 12, sm: 6}}>
+									<Typography variant="body2" color="text.secondary">
+										Authentication Score
+									</Typography>
+									<Typography variant="subtitle1" fontWeight="700">
+										{user?.kyc_approval_score ? `${user.kyc_approval_score}%` : "Not provided"}
 									</Typography>
 								</Grid>
 							</Grid>
@@ -385,10 +437,10 @@ export default function VerificationDetails() {
 									<Typography variant="subtitle2" fontWeight="700" sx={{mb: 1}}>
 										Government ID (Front)
 									</Typography>
-									{user?.kyc_front_photo ? (
+									{user?.kyc_front_photo_url || user?.kyc_front_photo ? (
 										<Box
 											component="img"
-											src={user.kyc_front_photo}
+											src={user?.kyc_front_photo_url || user?.kyc_front_photo}
 											sx={{
 												width: "100%",
 												borderRadius: 2,
@@ -422,10 +474,10 @@ export default function VerificationDetails() {
 									<Typography variant="subtitle2" fontWeight="700" sx={{mb: 1}}>
 										Government ID (Back)
 									</Typography>
-									{user?.kyc_back_photo ? (
+									{user?.kyc_back_photo || user?.kyc_back_photo_url ? (
 										<Box
 											component="img"
-											src={user.kyc_back_photo}
+											src={user?.kyc_back_photo || user?.kyc_back_photo_url}
 											sx={{
 												width: "100%",
 												borderRadius: 2,
@@ -459,10 +511,10 @@ export default function VerificationDetails() {
 									<Typography variant="subtitle2" fontWeight="700" sx={{mb: 1}}>
 										Profile Photo (Reference)
 									</Typography>
-									{user?.avatar ? (
+									{user?.kyc_selfie_photo || user?.kyc_selfie_photo_url ? (
 										<Box
 											component="img"
-											src={user.avatar}
+											src={user?.kyc_selfie_photo || user?.kyc_selfie_photo_url}
 											sx={{
 												width: "100%",
 												borderRadius: 2,

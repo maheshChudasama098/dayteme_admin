@@ -72,10 +72,7 @@ export default function AccountDeletionRequests() {
 	}, [setSearchParams, page, pageSize, search, filters]);
 
 	const handleProcessDeletion = (requestId) => {
-		sweetAlertQuestion(
-			"Are you sure you want to process this account deletion request? This action will permanently delete the user account and cannot be undone.",
-			"Confirm Account Deletion?",
-		)
+		sweetAlertQuestion("Are you sure you want to process this account deletion request? This action will permanently delete the user account and cannot be undone.", "Confirm Account Deletion?")
 			.then((isConfirmed) => {
 				if (isConfirmed) {
 					dispatch(
@@ -111,12 +108,7 @@ export default function AccountDeletionRequests() {
 				const userObj = record?.user || record;
 				return (
 					<Stack direction="row" alignItems="center" spacing={1.5}>
-						<Avatar
-							variant="rounded"
-							sx={{width: 40, height: 40, bgcolor: theme.palette.primary.lighter, color: theme.palette.primary.main, fontWeight: 700}}
-							src={userObj?.image || userObj?.avatar}
-							alt={userObj?.name}
-						>
+						<Avatar variant="rounded" sx={{bgcolor: theme.palette.primary.lighter, color: theme.palette.primary.main}} src={userObj?.image || userObj?.avatar} alt={userObj?.name}>
 							{userObj?.name?.charAt(0) || "U"}
 						</Avatar>
 						<Typography variant="subtitle2" color="text.primary" noWrap sx={{fontWeight: 700}}>
@@ -154,13 +146,7 @@ export default function AccountDeletionRequests() {
 			key: "status",
 			width: 150,
 			render: (_, record) => (
-				<Chip
-					label={record?.status || "Pending"}
-					size="small"
-					color={getStatusColor(record?.status)}
-					variant="soft"
-					sx={{fontWeight: 800, borderRadius: 1, textTransform: "capitalize"}}
-				/>
+				<Chip label={record?.status || "Pending"} size="small" color={getStatusColor(record?.status)} variant="soft" sx={{fontWeight: 800, borderRadius: 1, textTransform: "capitalize"}} />
 			),
 		},
 		{
@@ -189,8 +175,7 @@ export default function AccountDeletionRequests() {
 									fontWeight: 700,
 									borderRadius: 1.5,
 									px: 2,
-								}}
-							>
+								}}>
 								Process/Delete
 							</Button>
 						</span>
@@ -208,8 +193,7 @@ export default function AccountDeletionRequests() {
 				sx={{
 					justifyContent: "space-between",
 					alignItems: {xs: "flex-start", md: "center"},
-				}}
-			>
+				}}>
 				<Box>
 					<Typography variant="h4" fontWeight={800} color="text.primary" gutterBottom>
 						Account Deletion Requests
@@ -231,24 +215,13 @@ export default function AccountDeletionRequests() {
 							pt: 2,
 							justifyContent: "space-between",
 							alignItems: "center",
-						}}
-					>
-						<CustomSearchInput
-							loading={loadingLoader}
-							defaultValue={search}
-							callBack={setSearch}
-							placeholder="Search by name or email..."
-							width={{xs: "100%", md: 400}}
-						/>
+						}}>
+						<CustomSearchInput loading={loadingLoader} defaultValue={search} callBack={setSearch} placeholder="Search by name or email..." width={{xs: "100%", md: 400}} />
 						<Stack direction="row" spacing={1}>
 							{(() => {
 								const activeCount = Object.values(filters).filter((v) => v !== "").length;
 								return (
-									<Button
-										variant={activeCount > 0 ? "contained" : "outlined"}
-										startIcon={<Iconify icon="solar:filter-bold-duotone" />}
-										onClick={() => setIsFilterOpen(true)}
-									>
+									<Button variant={activeCount > 0 ? "contained" : "outlined"} startIcon={<Iconify icon="solar:filter-bold-duotone" />} onClick={() => setIsFilterOpen(true)}>
 										Filters {activeCount > 0 && `(${activeCount})`}
 									</Button>
 								);

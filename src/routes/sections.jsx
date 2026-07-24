@@ -34,6 +34,8 @@ export const GiftDetails = lazy(() => import("../Apps/Gift/GiftDetails"));
 
 export const UserReportsList = lazy(() => import("../Apps/UserReports"));
 export const UserReportDetails = lazy(() => import("../Apps/UserReports/UserReportDetails"));
+export const SafetyQueue = lazy(() => import("../Apps/SafetyQueue"));
+export const SafetyIncidentDetails = lazy(() => import("../Apps/SafetyQueue/SafetyIncidentDetails"));
 export const PaymentList = lazy(() => import("../Apps/Payments"));
 export const Profile = lazy(() => import("../Apps/Profile"));
 export const Settings = lazy(() => import("../Apps/Settings"));
@@ -77,6 +79,8 @@ export default function Router() {
 		{path: AdminRoutes?.GiftDetails, element: <GiftDetails />},
 		{path: AdminRoutes?.UserReportsList, element: <UserReportsList />},
 		{path: AdminRoutes?.UserReportDetails, element: <UserReportDetails />},
+		{path: AdminRoutes?.SafetyQueue, element: <SafetyQueue />},
+		{path: AdminRoutes?.SafetyIncidentDetails, element: <SafetyIncidentDetails />},
 		{path: AdminRoutes?.PaymentList, element: <PaymentList />},
 		{path: AdminRoutes?.Profile, element: <Profile />},
 		{path: AdminRoutes?.Settings, element: <Settings />},

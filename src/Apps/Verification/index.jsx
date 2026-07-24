@@ -114,26 +114,26 @@ export default function VerificationList() {
 				</Stack>
 			),
 		},
-		{
-			title: "Documents",
-			key: "details",
-			width: 200,
-			render: (_, record) => (
-				<Stack direction="row" spacing={1}>
-					{record?.kyc_front_photo && (
-						<Avatar variant="rounded" src={record?.kyc_front_photo} alt={record?.name}>
-							{record?.name?.charAt(0)}
-						</Avatar>
-					)}
+		// {
+		// 	title: "Documents",
+		// 	key: "details",
+		// 	width: 200,
+		// 	render: (_, record) => (
+		// 		<Stack direction="row" spacing={1}>
+		// 			{record?.kyc_front_photo && (
+		// 				<Avatar variant="rounded" src={record?.kyc_front_photo} alt={record?.name}>
+		// 					{record?.name?.charAt(0)}
+		// 				</Avatar>
+		// 			)}
 
-					{record?.kyc_back_photo && (
-						<Avatar variant="rounded" src={record?.kyc_back_photo} alt={record?.name}>
-							{record?.name?.charAt(0)}
-						</Avatar>
-					)}
-				</Stack>
-			),
-		},
+		// 			{record?.kyc_back_photo && (
+		// 				<Avatar variant="rounded" src={record?.kyc_back_photo} alt={record?.name}>
+		// 					{record?.name?.charAt(0)}
+		// 				</Avatar>
+		// 			)}
+		// 		</Stack>
+		// 	),
+		// },
 		{
 			title: "Verification Details",
 			key: "details",

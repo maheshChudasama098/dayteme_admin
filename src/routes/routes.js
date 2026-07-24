@@ -21,6 +21,8 @@ export const AdminRoutes = {
 	GiftDetails: "/gifts/details",
 	UserReportsList: "/user-reports",
 	UserReportDetails: "/user-reports/details",
+	SafetyQueue: "/safety-queue",
+	SafetyIncidentDetails: "/safety-queue/details",
 	PaymentList: "/payments",
 	Profile: "/profile",
 	Settings: "/settings",

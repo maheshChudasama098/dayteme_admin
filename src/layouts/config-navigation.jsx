@@ -32,12 +32,12 @@ export const adminNavConfig = [
 		icon: "solar:shield-user-bold-duotone",
 		permission: ["manage_roles"],
 	},
-	{
-		title: "Verification",
-		path: AdminRoutes?.VerificationList,
-		icon: "solar:shield-check-bold-duotone",
-		permission: ["manage_verification", "verify_kyc"],
-	},
+	// {
+	// 	title: "Verification",
+	// 	path: AdminRoutes?.VerificationList,
+	// 	icon: "solar:shield-check-bold-duotone",
+	// 	permission: ["manage_verification", "verify_kyc"],
+	// },
 	{
 		title: "Unfreeze Requests",
 		path: AdminRoutes?.UnfreezeRequestsList,
@@ -55,6 +55,18 @@ export const adminNavConfig = [
 		path: AdminRoutes?.UserReportsList,
 		icon: "solar:shield-warning-bold-duotone",
 		permission: ["manage_reports", "view_reports", "resolve_reports"],
+		child: [
+			{
+				title: "User Reports",
+				path: AdminRoutes?.UserReportsList,
+				display: true,
+			},
+			{
+				title: "Safety Queue",
+				path: AdminRoutes?.SafetyQueue,
+				display: true,
+			},
+		],
 	},
 	{
 		title: "Question",

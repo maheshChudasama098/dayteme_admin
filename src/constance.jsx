@@ -1,6 +1,6 @@
-export const DevelopMood = true;
+export const DevelopMood = false;
 
-export const apiURL = DevelopMood ? "http://192.168.0.176/Projects/Laravel/dayteme/public/api/" : "https://www.api.dayteme.com/public/api";
+export const apiURL = DevelopMood ? "http://192.168.0.184/Projects/Laravel/dayteme/public/api/" : "https://www.api.dayteme.com/public/api";
 
 export const imageUlr = "";
 
